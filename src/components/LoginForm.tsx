@@ -4,7 +4,7 @@ import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import loginImage from '../assets/attachment_102284279.jpg';
-
+import { API_URL } from '../../Base_Api';
 // Custom JWT payload interface
 interface CustomJwtPayload {
   scope?: string;
@@ -26,7 +26,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8080/auth/token', {
+      const response = await axios.post(`${API_URL}/auth/token`, {
         username,
         password,
       }, {
@@ -39,7 +39,10 @@ const LoginForm = () => {
       const decodedToken = jwtDecode<CustomJwtPayload>(token);
       if (decodedToken.scope === 'ROLE_ADMIN') {
         navigate('/admin');
-      } else {
+      } else if(decodedToken.scope === 'ROLE_OWNER') {
+        navigate('/owner');
+      }
+      else {
         navigate('/profile');
       }
     } catch (err) {

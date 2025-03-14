@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEnvelope, FaMapMarkerAlt, FaCalendar, FaUserShield, FaPaw, FaPlus, FaTimes, FaDog, FaCat, FaWeight, FaPaw as FaAge, FaEdit, FaTrash } from "react-icons/fa";
-
+import Navbar from "./Navbar";
+import Header from "./Header";
 const Profile = () => {
   const [userData, setUserData] = useState<any>(null);
   const [pets, setPets] = useState<any[]>([]);
@@ -128,6 +129,8 @@ const Profile = () => {
   };
 
   return (
+    <div>
+      <Header/>
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 w-screen">
       <div className="flex w-full bg-white rounded-lg shadow-lg h-full">
         <div className="w-80 p-6 border-r border-gray-200">
@@ -425,6 +428,7 @@ const Profile = () => {
         </div>
       </div>
     </div>
+  </div>
     );
 };
 export default Profile;
