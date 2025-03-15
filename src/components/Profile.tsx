@@ -4,6 +4,7 @@ import { FaEnvelope, FaMapMarkerAlt, FaCalendar, FaUserShield, FaPaw, FaPlus, Fa
 import Navbar from "./Navbar";
 import Header from "./Header";
 import { API_URL } from '../../Base_Api';
+
 const Profile = () => {
   const [userData, setUserData] = useState<any>(null);
   const [pets, setPets] = useState<any[]>([]);
@@ -20,29 +21,29 @@ const Profile = () => {
   });
   const [petImage, setPetImage] = useState<File | null>(null);
 
+  const token = localStorage.getItem("token");
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'ngrok-skip-browser-warning': 'true',
+    },
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
         if (!token) {
           setError("Bạn chưa đăng nhập!");
           setLoading(false);
           return;
         }
 
-        const userResponse = await axios.get(`{${API_URL}/users/myInfo`, {
-          headers: { Authorization: `Bearer ${token}`,
-          'ngrok-skip-browser-warning': 'true',
-         }
-         ,
-         
-        });
+        const userResponse = await axiosInstance.get('/users/myInfo');
         setUserData(userResponse.data.result);
+        console.log(userResponse);
 
-        const petsResponse = await axios.get(`${API_URL}/pets`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+        const petsResponse = await axiosInstance.get('/pets');
         if (petsResponse.data.code === 1000 && Array.isArray(petsResponse.data.result)) {
           setPets(petsResponse.data.result);
         } else {
@@ -57,11 +58,10 @@ const Profile = () => {
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
   const handleAddPet = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
     if (!token) {
       alert("Bạn chưa đăng nhập!");
       return;
@@ -80,8 +80,8 @@ const Profile = () => {
     if (petImage) formData.append("avtFile", petImage);
 
     try {
-      const response = await axios.post(`${API_URL}/pets`, formData, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+      const response = await axiosInstance.post('/pets', formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (response.data.code === 1000) {
@@ -104,7 +104,6 @@ const Profile = () => {
   };
 
   const handleDeletePet = async (petId: string) => {
-    const token = localStorage.getItem("token");
     if (!token) {
       alert("Bạn chưa đăng nhập!");
       return;
@@ -113,10 +112,7 @@ const Profile = () => {
     if (!window.confirm("Bạn có chắc muốn xóa Pet này?")) return;
 
     try {
-      const response = await axios.delete(`${API_URL}/pets/${petId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const response = await axiosInstance.delete(`/pets/${petId}`);
       if (response.data.code === 1000) {
         alert("Xóa Pet thành công!");
         setPets(pets.filter((pet) => pet.id !== petId));
