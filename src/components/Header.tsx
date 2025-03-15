@@ -97,7 +97,7 @@ const Header = () => {
               </div>
             </div>
           ) : (
-            <Link to="/login" className="flex items-center hover:text-blue-200 transition-colors">
+            <Link to="/" className="flex items-center hover:text-blue-200 transition-colors">
               <FaUser className="mr-1" /> Đăng Nhập
             </Link>
           )}
