@@ -3,12 +3,14 @@ import axios from 'axios';
 import { API_URL } from '../../Base_Api';
 import { Link } from 'react-router-dom';
 import Header from './Header';
+
 interface ServiceType {
   id: string;
   name: string;
   price: number;
   duration: number;
   description: string;
+  avtUrl?: string | null; // Thêm avtUrl vào interface
 }
 
 interface Service {
@@ -100,28 +102,34 @@ const ServicePage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       {/* Header */}
-      <Header/>
+      <Header />
 
       {/* Main Content */}
       <main className="flex-1 px-4 py-8">
         <div className="container mx-auto">
           <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center">Dịch Vụ Chăm Sóc Thú Cưng Tại Nhà</h2>
           
-          {/* Service Type Selection */}
-          <div className="mb-8 text-center">
-            <label className="block text-gray-700 text-lg font-semibold mb-2">Chọn Loại Dịch Vụ</label>
-            <select
-              value={selectedServiceTypeId}
-              onChange={(e) => setSelectedServiceTypeId(e.target.value)}
-              className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-xs mx-auto"
-            >
-              <option value="">Chọn một loại dịch vụ</option>
+          {/* Service Types Display */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">Các Loại Dịch Vụ</h3>
+            <div className="flex justify-center gap-6 overflow-x-auto pb-4">
               {serviceTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
+                <div
+                  key={type.id}
+                  className={`flex flex-col items-center cursor-pointer p-2 rounded-lg transition-all duration-300 ${
+                    selectedServiceTypeId === type.id ? 'bg-blue-100 shadow-md' : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setSelectedServiceTypeId(type.id)}
+                >
+                  <img
+                    src={type.avtUrl || 'https://via.placeholder.com/80'} // Ảnh mặc định nếu avtUrl là null
+                    alt={type.name}
+                    className="w-20 h-20 rounded-full object-cover mb-2"
+                  />
+                  <p className="text-gray-700 font-medium text-center">{type.name}</p>
+                </div>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* Display Selected Service Type Info */}
