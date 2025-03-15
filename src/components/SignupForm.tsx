@@ -136,7 +136,7 @@ const SignupForm = () => {
 
       if (response.data.code === 1000) {
         alert("Đăng ký thành công!");
-        navigate("/login");
+        navigate("/");
       } else {
         setError("Đăng ký thất bại. Hãy thử lại!");
       }
