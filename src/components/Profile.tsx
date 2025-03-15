@@ -3,6 +3,7 @@ import axios from "axios";
 import { FaEnvelope, FaMapMarkerAlt, FaCalendar, FaUserShield, FaPaw, FaPlus, FaTimes, FaDog, FaCat, FaWeight, FaPaw as FaAge, FaEdit, FaTrash } from "react-icons/fa";
 import Navbar from "./Navbar";
 import Header from "./Header";
+import { API_URL } from '../../Base_Api';
 const Profile = () => {
   const [userData, setUserData] = useState<any>(null);
   const [pets, setPets] = useState<any[]>([]);
@@ -29,12 +30,16 @@ const Profile = () => {
           return;
         }
 
-        const userResponse = await axios.get("http://localhost:8080/users/myInfo", {
-          headers: { Authorization: `Bearer ${token}` },
+        const userResponse = await axios.get(`{${API_URL}/users/myInfo`, {
+          headers: { Authorization: `Bearer ${token}`,
+          'ngrok-skip-browser-warning': 'true',
+         }
+         ,
+         
         });
         setUserData(userResponse.data.result);
 
-        const petsResponse = await axios.get("http://localhost:8080/pets", {
+        const petsResponse = await axios.get(`${API_URL}/pets`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -75,7 +80,7 @@ const Profile = () => {
     if (petImage) formData.append("avtFile", petImage);
 
     try {
-      const response = await axios.post("http://localhost:8080/pets", formData, {
+      const response = await axios.post(`${API_URL}/pets`, formData, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       });
 
@@ -108,7 +113,7 @@ const Profile = () => {
     if (!window.confirm("Bạn có chắc muốn xóa Pet này?")) return;
 
     try {
-      const response = await axios.delete(`http://localhost:8080/pets/${petId}`, {
+      const response = await axios.delete(`${API_URL}/pets/${petId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
