@@ -37,7 +37,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-white-50 to-cyan-100 text-black shadow-lg">
+    <header className="bg-gradient-to-r from-white-50 to-cyan-100 text-black shadow-lg mt-4">
       {/* Top Header */}
       <div className="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
         {/* Logo & Search */}
@@ -77,49 +77,45 @@ const Header = () => {
           </Link>
           
           {token && userData ? (
-            <div className="relative group">
-              <Link
-                to="/profile"
-                className="flex items-center hover:text-blue-200 transition-colors duration-300"
-              >
-                <img
-                  src={userData.avtUrl || 'https://via.placeholder.com/40'}
-                  alt="User Avatar"
-                  className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-md"
-                />
-                <span className="ml-2 text-sm font-medium">{userData.firstName}</span>
-              </Link>
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 hidden group-hover:block transition-all duration-200 border border-gray-200">
-                <Link
-                  to="/profile"
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
-                >
-                  <FaUser className="mr-2 text-gray-600" /> My Profile
-                </Link>
-                <Link
-                  to="/schedule"
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
-                >
-                  <FaCalendarAlt className="mr-2 text-gray-600" /> My Schedule
-                </Link>
-                <Link
-                  to="/schedule"
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
-                >
-                   My Schedule
-                </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    window.location.reload();
-                  }}
-                  className="flex items-center w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
-                >
-                  <FaSignOutAlt className="mr-2 text-gray-600" /> Logout
-                </button>
-              </div>
-            </div>
-          ) : (
+  <div className="relative group">
+    <Link
+      to="/profile"
+      className="flex items-center hover:text-blue-200 transition-colors duration-300"
+    >
+      <img
+        src={userData.avtUrl || 'https://via.placeholder.com/40'}
+        alt="User Avatar"
+        className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-md"
+      />
+      <span className="ml-2 text-sm font-medium">{userData.firstName}</span>
+    </Link>
+    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 border border-gray-200">
+      <div className="py-2">
+        <Link
+          to="/profile"
+          className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
+        >
+          <FaUser className="mr-2 text-gray-600" /> My Profile
+        </Link>
+        <Link
+          to="/schedule"
+          className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
+        >
+          <FaCalendarAlt className="mr-2 text-gray-600" /> My Schedule
+        </Link>
+        <button
+          onClick={() => {
+            localStorage.removeItem('token');
+            window.location.reload();
+          }}
+          className="flex items-center w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
+        >
+          <FaSignOutAlt className="mr-2 text-gray-600" /> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+) : (
             <Link
               to="/login"
               className="flex items-center hover:text-blue-200 transition-colors duration-300"
