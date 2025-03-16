@@ -11,7 +11,7 @@ import {
 } from "@ant-design/icons";
 import Header from "./Header";
 import { format } from "date-fns";
-import { div } from "framer-motion/m";
+import { div } from "framer-motion/client";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -80,6 +80,22 @@ const OrderHistoryPage: React.FC = () => {
     }
   };
 
+  // Map status to Vietnamese text and color
+  const getStatusInfo = (status: string | null) => {
+    switch (status?.toUpperCase()) {
+      case "PAID":
+        return { text: "Đã Thanh Toán", color: "green" };
+      case "PENDING":
+        return { text: "Chờ Thanh Toán", color: "orange" };
+      case "ACCEPT":
+        return { text: "Chờ Giao Hàng", color: "blue" };
+      case "SUCCESS":
+        return { text: "Đã Giao Hàng", color: "purple" };
+      default:
+        return { text: "Trạng thái không xác định", color: "gray" };
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ padding: "20px" }}>
@@ -112,7 +128,6 @@ const OrderHistoryPage: React.FC = () => {
   return (
     <div>
         <Header />
-    
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
       
       
@@ -138,114 +153,117 @@ const OrderHistoryPage: React.FC = () => {
           <List
             itemLayout="vertical"
             dataSource={orders}
-            renderItem={(order, index) => (
-              <Card 
-                key={index}
-                style={{ 
-                  marginBottom: "20px", 
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                  borderLeft: "4px solid #1890ff"
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
-                      <ClockCircleOutlined style={{ color: "#8c8c8c", marginRight: "8px" }} />
-                      <Text strong style={{ fontSize: "15px" }}>
-                        {formatDate(order.orderTime)}
-                      </Text>
+            renderItem={(order, index) => {
+              const statusInfo = getStatusInfo(order.status);
+              return (
+                <Card 
+                  key={index}
+                  style={{ 
+                    marginBottom: "20px", 
+                    borderRadius: "8px",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    borderLeft: `4px solid ${statusInfo.color === "green" ? "#52c41a" : statusInfo.color === "orange" ? "#faad14" : statusInfo.color === "blue" ? "#1890ff" : statusInfo.color === "purple" ? "#722ed1" : "#d9d9d9"}`
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", marginBottom: "12px" }}>
+                        <ClockCircleOutlined style={{ color: "#8c8c8c", marginRight: "8px" }} />
+                        <Text strong style={{ fontSize: "15px" }}>
+                          {formatDate(order.orderTime)}
+                        </Text>
+                      </div>
+                      <Badge 
+                        color={statusInfo.color}
+                        text={
+                          <Text strong style={{ fontSize: "14px", color: statusInfo.color }}>
+                            {statusInfo.text}
+                          </Text>
+                        } 
+                        style={{ marginBottom: "12px" }}
+                      />
                     </div>
-                    <Badge 
-                      color="green" 
-                      text={
-                        <Text strong style={{ fontSize: "14px", color: "green" }}>
-                          Hoàn thành
+
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                        <DollarOutlined style={{ color: "#ff4d4f", marginRight: "8px" }} />
+                        <Text strong style={{ fontSize: "18px", color: "#ff4d4f" }}>
+                          {order.totalPrice.toLocaleString()} VNĐ
+                        </Text>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Divider style={{ margin: "12px 0" }} />
+
+                  <Collapse 
+                    ghost 
+                    bordered={false}
+                    expandIconPosition="end"
+                    defaultActiveKey={index === 0 ? ["1"] : []}
+                  >
+                    <Panel 
+                      header={
+                        <Text strong style={{ fontSize: "15px" }}>
+                          <ShoppingOutlined style={{ marginRight: "8px" }} />
+                          {order.orderItems.length} sản phẩm
                         </Text>
                       } 
-                      style={{ marginBottom: "12px" }}
-                    />
-                  </div>
-
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                      <DollarOutlined style={{ color: "#ff4d4f", marginRight: "8px" }} />
-                      <Text strong style={{ fontSize: "18px", color: "#ff4d4f" }}>
-                        {order.totalPrice.toLocaleString()} VNĐ
-                      </Text>
-                    </div>
-                  </div>
-                </div>
-
-                <Divider style={{ margin: "12px 0" }} />
-
-                <Collapse 
-                  ghost 
-                  bordered={false}
-                  expandIconPosition="end"
-                  defaultActiveKey={index === 0 ? ["1"] : []}
-                >
-                  <Panel 
-                    header={
-                      <Text strong style={{ fontSize: "15px" }}>
-                        <ShoppingOutlined style={{ marginRight: "8px" }} />
-                        {order.orderItems.length} sản phẩm
-                      </Text>
-                    } 
-                    key="1"
-                  >
-                    <List
-                      itemLayout="horizontal"
-                      dataSource={order.orderItems}
-                      renderItem={item => (
-                        <List.Item style={{ padding: "12px 0" }}>
-                          <div style={{ 
-                            display: "flex", 
-                            width: "100%",
-                            flexWrap: "wrap"
-                          }}>
+                      key="1"
+                    >
+                      <List
+                        itemLayout="horizontal"
+                        dataSource={order.orderItems}
+                        renderItem={item => (
+                          <List.Item style={{ padding: "12px 0" }}>
                             <div style={{ 
-                              maxWidth: "80px", 
-                              marginRight: "16px", 
-                              flexShrink: 0 
+                              display: "flex", 
+                              width: "100%",
+                              flexWrap: "wrap"
                             }}>
-                              <Image
-                                width={80}
-                                height={80}
-                                src={item.productImage}
-                                alt={item.productName}
-                                style={{ 
-                                  objectFit: "cover", 
-                                  borderRadius: "4px" 
-                                }}
-                                fallback="https://via.placeholder.com/80"
-                              />
+                              <div style={{ 
+                                maxWidth: "80px", 
+                                marginRight: "16px", 
+                                flexShrink: 0 
+                              }}>
+                                <Image
+                                  width={80}
+                                  height={80}
+                                  src={item.productImage}
+                                  alt={item.productName}
+                                  style={{ 
+                                    objectFit: "cover", 
+                                    borderRadius: "4px" 
+                                  }}
+                                  fallback="https://via.placeholder.com/80"
+                                />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <Text strong style={{ fontSize: "15px", display: "block", marginBottom: "4px" }}>
+                                  {item.productName}
+                                </Text>
+                                <Text type="secondary">
+                                  {item.productPrice.toLocaleString()} VNĐ × {item.quantity}
+                                </Text>
+                              </div>
+                              <div style={{ 
+                                minWidth: "100px", 
+                                textAlign: "right",
+                                flexShrink: 0
+                              }}>
+                                <Text strong style={{ color: "#ff4d4f" }}>
+                                  {(item.productPrice * item.quantity).toLocaleString()} VNĐ
+                                </Text>
+                              </div>
                             </div>
-                            <div style={{ flex: 1 }}>
-                              <Text strong style={{ fontSize: "15px", display: "block", marginBottom: "4px" }}>
-                                {item.productName}
-                              </Text>
-                              <Text type="secondary">
-                                {item.productPrice.toLocaleString()} VNĐ × {item.quantity}
-                              </Text>
-                            </div>
-                            <div style={{ 
-                              minWidth: "100px", 
-                              textAlign: "right",
-                              flexShrink: 0
-                            }}>
-                              <Text strong style={{ color: "#ff4d4f" }}>
-                                {(item.productPrice * item.quantity).toLocaleString()} VNĐ
-                              </Text>
-                            </div>
-                          </div>
-                        </List.Item>
-                      )}
-                    />
-                  </Panel>
-                </Collapse>
-              </Card>
-            )}
+                          </List.Item>
+                        )}
+                      />
+                    </Panel>
+                  </Collapse>
+                </Card>
+              );
+            }}
           />
         )}
       </Card>

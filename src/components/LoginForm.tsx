@@ -58,7 +58,7 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen ">
       {/* Left Side - Form */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-10">
         <div className="max-w-md w-full">
@@ -139,7 +139,7 @@ const LoginForm = () => {
       <div className="hidden md:flex w-1/2 bg-gray-100 p-6 rounded-lg">
         <div className="relative w-full h-full">
           <img
-            src={loginImage}
+            src='https://marketplace.canva.com/EAFJ1a_Jkq4/1/0/1600w/canva-brown-black-simple-modern-pet-shop-logo-3HtOB_YFCeQ.jpg'
             alt="PetStore Illustration"
             className="w-full h-full object-cover rounded-lg"
           />
