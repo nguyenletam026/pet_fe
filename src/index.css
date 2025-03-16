@@ -23,10 +23,10 @@ a:hover {
 }
 
 body {
-  margin: 0;
+  margin: auto;
   place-items: initial;
-  min-width: 320px;
-  min-height: 100vh;
+  width: auto;
+  min-height: auto;
 }
 
 h1 {

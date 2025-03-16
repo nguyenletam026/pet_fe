@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_URL } from '../../Base_Api';
-import { Link } from 'react-router-dom';
-import Header from './Header';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { API_URL } from "../../Base_Api";
+import { Link } from "react-router-dom";
+import Header from "./Header";
+
 interface Service {
   id: string;
   name: string;
@@ -31,18 +32,37 @@ interface UserData {
 const HomePage = () => {
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userLoading, setUserLoading] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   const axiosInstance = axios.create({
     baseURL: API_URL,
     headers: {
       Authorization: `Bearer ${token}`,
-      'ngrok-skip-browser-warning': 'true',
+      "ngrok-skip-browser-warning": "true",
     },
   });
+
+  const slides = [
+    {
+      url: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&auto=format&fit=crop",
+      title: "Because Good Life Is More Than Just Good Foods",
+      subtitle: "Dogs laugh, but they laugh with their tails"
+    },
+    {
+      url: "https://images.pexels.com/photos/2606018/pexels-photo-2606018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      title: "Premium Pet Care Services",
+      subtitle: "Providing the best for your furry friends"
+    },
+    {
+      url: "https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      title: "Happy Pets, Happy Life",
+      subtitle: "Quality products for your beloved companions"
+    }
+  ];
 
   useEffect(() => {
     fetchShops();
@@ -52,13 +72,12 @@ const HomePage = () => {
   const fetchShops = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get('/shops/getAllShops');
-      console.log('Fetch shops response:', response.data);
+      const response = await axiosInstance.get("/shops/getAllShops");
       const shopsData = response.data.result || [];
       setShops(shopsData);
     } catch (err) {
-      setError('Failed to fetch shops. Please try again.');
-      console.error('Fetch shops error:', err);
+      setError("Failed to fetch shops. Please try again.");
+      console.error("Fetch shops error:", err);
     } finally {
       setLoading(false);
     }
@@ -67,17 +86,24 @@ const HomePage = () => {
   const fetchUserData = async () => {
     setUserLoading(true);
     try {
-      const response = await axiosInstance.get('/users/myInfo');
+      const response = await axiosInstance.get("/users/myInfo");
       setUserData(response.data.result);
-    } catch (err) {
-      console.error('Failed to fetch user data:', err);
     } finally {
       setUserLoading(false);
     }
   };
 
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+<<<<<<< HEAD
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-yellow-50">
       {/* Header */}
       <Header userData={userData} token={token} />  
       {/* Banner */}
@@ -85,163 +111,192 @@ const HomePage = () => {
         <div className="container mx-auto text-center px-4">
           <h1 className="text-5xl font-bold mb-4">VETTRACK - NƠI THÚ CƯNG ĐƯỢC YÊU THƯƠNG</h1>
           <p className="text-xl mb-6">Dịch vụ và sản phẩm chuẩn chất lượng cho thú cưng của bạn!</p>
+=======
+    <div className="min-h-screen bg-white">
+      <Header userData={userData} token={token} />
+
+      {/* Hero Section with Carousel */}
+      <div className="relative w-full h-[600px] py-32 mt-"> {/* Added mt-20 */}
+        {/* Carousel Images */}
+        <div className="absolute inset-0 w-full h-full">
+>>>>>>> 1051289f74ff9c4fca01abfc10fb0c50a60c1b86
           <img
-            src="https://img.freepik.com/free-vector/hand-drawn-pet-shop-facebook-cover-template_23-2150383109.jpg"
-            alt="Banner Image"
-            className="mx-auto rounded-lg shadow-md"
+            src={slides[currentSlide].url}
+            alt={`Slide ${currentSlide + 1}`}
+            className="w-full h-full object-cover transition-opacity duration-500"
           />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50" />
         </div>
-        <div className="absolute top-0 left-0 w-full h-full flex justify-between items-center text-yellow-300">
-          <span className="text-4xl">⭐</span>
-          <span className="text-4xl">⭐</span>
-        </div>
-      </div>
 
-      {/* Features Section */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img
-              src="https://paddy.vn/cdn/shop/files/icon_web-01_320x.png?v=1692851925"
-              alt="Free Shipping"
-              className="h-16 mx-auto mb-4"
-              loading="lazy"
-            />
-            <h3 className="text-lg font-semibold text-blue-600">Miễn phí vận chuyển</h3>
-            <p className="text-gray-600">Giao hàng nhanh chóng</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img
-              src="https://paddy.vn/cdn/shop/files/icon_web-02_320x.png?v=1692851981"
-              alt="Authentic Product"
-              className="h-16 mx-auto mb-4"
-              loading="lazy"
-            />
-            <h3 className="text-lg font-semibold text-blue-600">Sản phẩm chính hãng</h3>
-            <p className="text-gray-600">100% chất lượng cao</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img
-              src="https://paddy.vn/cdn/shop/files/icon_web-03_320x.png?v=1692853446"
-              alt="Easy Payment"
-              className="h-16 mx-auto mb-4"
-              loading="lazy"
-            />
-            <h3 className="text-lg font-semibold text-blue-600">Thanh toán tiện lợi</h3>
-            <p className="text-gray-600">An toàn và nhanh chóng</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img
-              src="https://paddy.vn/cdn/shop/files/icon_web-04_320x.png?v=1692853499"
-              alt="Support"
-              className="h-16 mx-auto mb-4"
-              loading="lazy"
-            />
-            <h3 className="text-lg font-semibold text-blue-600">Hỗ trợ chuyên nghiệp</h3>
-            <p className="text-gray-600">24/7 phục vụ tận tâm</p>
+        {/* Text and buttons container */}
+        <div className="relative container mx-auto px-4 flex flex-col items-center justify-center h-full text-center">
+          <div className="mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4 transition-all duration-500">
+              {slides[currentSlide].title}
+            </h1>
+            <p className="text-gray-600 mb-6 transition-all duration-500">
+              {slides[currentSlide].subtitle}
+            </p>
+            <button className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors">
+              Shop Now
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Shopping Section */}
-      <div className="container mx-auto px-4 py-8 text-center">
-        <p className="text-gray-600 mb-6">Khám phá gợi ý mua sắm cho thú cưng của bạn</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-  <Link
-    to="/services" // Điều hướng đến trang mới
-    className="bg-blue-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-blue-700 font-semibold text-center hover:bg-blue-200"
-  >
-    DỊCH VỤ CHĂM SÓC TẠI NHÀ
-  </Link>
-  <Link
-    to="/shop"
-    className="bg-pink-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-pink-700 font-semibold text-center hover:bg-pink-200"
-  >
-    MUA SẮM PHỤ KIỆN
-  </Link>
-  <Link
-    to="/shop"
-    className="bg-green-100 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow text-green-700 font-semibold text-center hover:bg-green-200"
-  >
-    MUA SẮM THỨC ĂN
-  </Link>
-</div>
-        <button className="mt-6 bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors">
-          Liên hệ hỗ trợ
+        {/* Navigation Arrows */}
+        <button
+          onClick={prevSlide}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all"
+        >
+          <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all"
+        >
+          <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        {/* Dots for indicating current image */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {slides.map((_, index) => (
+            <div
+              key={index}
+              className={`w-3 h-3 rounded-full ${
+                currentSlide === index ? 'bg-orange-500' : 'bg-gray-400'
+              }`}
+              onClick={() => setCurrentSlide(index)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Journey Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="bg-pink-50 rounded-2xl p-8 flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 mb-8 md:mb-0">
+            <img
+              src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=500&auto=format&fit=crop"
+              alt="Pet Love"
+              className="rounded-lg"
+            />
+          </div>
+          <div className="md:w-1/2 md:pl-8">
+            <span className="text-orange-500 font-medium">Our Pet 2025 Store</span>
+            <h2 className="text-3xl font-bold text-gray-800 mt-2 mb-4">
+              The Journey To Our Meowzy A Passion For Pets
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <p>Over 15 years of experience</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <p>Premium certified pet food</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <p>High-quality pet accessories</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                <p>Regular veterinary checkups</p>
+              </div>
+            </div>
+            <button className="mt-6 bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
+              Read More
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Sections */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid md:grid-cols-2 gap-8">
+          <div className="bg-orange-400 rounded-2xl p-8 text-white flex items-center">
+            <div>
+              <h3 className="text-2xl font-bold mb-2">We Care & Share Love For Pets</h3>
+              <button className="bg-white text-orange-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors">
+                Read More
+              </button>
+            </div>
+          </div>
+          <div className="bg-pink-400 rounded-2xl p-8 text-white flex items-center">
+            <div>
+              <h3 className="text-2xl font-bold mb-2">Dog Clothing & Accessories</h3>
+              <button className="bg-white text-pink-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors">
+                Shop Now
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Shops List */}
-      <main className="flex-1 px-4 py-8">
-        <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center">Khám Phá Các Shop Thú Cưng</h2>
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          {loading && <p className="text-gray-500 text-center mb-4">Đang tải...</p>}
-          {shops.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shops.map((shop) => (
-                <div
-                  key={shop.id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-                >
-                  {shop.avtUrl ? (
-                    <img
-                      src={shop.avtUrl}
-                      alt={`${shop.name} avatar`}
-                      className="w-full h-56 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-56 bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">No Image</span>
-                    </div>
-                  )}
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">{shop.name}</h3>
-                    <p className="text-gray-600 mb-2">
-                      <span className="font-medium">Địa chỉ:</span> {shop.address}
-                    </p>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-medium">SĐT:</span> {shop.phoneNumber}
-                    </p>
-                    <div className="mb-4">
-                      <h4 className="text-lg font-medium text-gray-700 mb-2">Dịch vụ</h4>
-                      {shop.services.length > 0 ? (
-                        <ul className="space-y-1">
-                          {shop.services.map((service) => (
-                            <li key={service.id} className="text-gray-600 text-sm">
-                              <span className="font-medium">{service.name}</span> -{' '}
-                              {service.price.toLocaleString()} VND ({service.duration} phút)
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-gray-500 text-sm">Chưa có dịch vụ.</p>
-                      )}
-                    </div>
-                    <Link
-                      to={`/shop/${shop.id}`}
-                      className="w-full bg-blue-600 text-white py-2 rounded-lg text-center hover:bg-blue-700 transition-colors block"
-                    >
-                      Đặt lịch ngay
-                    </Link>
+      <div className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">Our Partner Shops</h2>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {loading && <p className="text-gray-500 text-center mb-4">Loading...</p>}
+        {shops.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {shops.map((shop) => (
+              <div
+                key={shop.id}
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+              >
+                {shop.avtUrl ? (
+                  <img
+                    src={shop.avtUrl}
+                    alt={shop.name}
+                    className="w-full h-48 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500">No Image</span>
                   </div>
+                )}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{shop.name}</h3>
+                  <p className="text-gray-600 mb-2">{shop.address}</p>
+                  <p className="text-gray-600 mb-4">{shop.phoneNumber}</p>
+                  <Link
+                    to={`/shop/${shop.id}`}
+                    className="block w-full bg-orange-500 text-white text-center py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    Book Now
+                  </Link>
                 </div>
-              ))}
-            </div>
-          ) : (
-            !loading && <p className="text-gray-500 text-center">Không có shop nào hiện tại.</p>
-          )}
-        </div>
-      </main>
+              </div>
+            ))}
+          </div>
+        ) : (
+          !loading && <p className="text-gray-500 text-center">No shops available.</p>
+        )}
+      </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-6">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm">&copy; 2025 VetTrack. All rights reserved.</p>
-          <div className="mt-2 space-x-4">
-            <a href="#" className="hover:text-blue-300">Chính sách bảo mật</a>
-            <a href="#" className="hover:text-blue-300">Liên hệ</a>
-            <a href="#" className="hover:text-blue-300">Điều khoản sử dụng</a>
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-4">VetTrack</h3>
+            <p className="mb-4">Your trusted partner in pet care</p>
+            <div className="flex justify-center space-x-6 mb-6">
+              <a href="#" className="hover:text-orange-500 transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="hover:text-orange-500 transition-colors">
+                Contact
+              </a>
+              <a href="#" className="hover:text-orange-500 transition-colors">
+                Terms of Service
+              </a>
+            </div>
+            <p className="text-sm text-gray-400">© 2025 VetTrack. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../Base_Api';
-import { FaSearch, FaHeart, FaShoppingCart, FaPhone, FaUser, FaSignOutAlt, FaDog, FaCat, FaBone, FaPaw, FaNewspaper, FaTags } from 'react-icons/fa';
+import { FaSearch, FaHeart, FaShoppingCart, FaPhone, FaUser, FaSignOutAlt, FaCalendarAlt } from 'react-icons/fa';
 
 interface UserData {
   id: string;
@@ -28,7 +28,7 @@ const Header = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           'ngrok-skip-browser-warning': 'true',
-        }
+        },
       });
       setUserData(response.data.result);
     } catch (err) {
@@ -37,108 +37,108 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 text-white shadow-xl">
+    <header className="bg-gradient-to-r from-white-50 to-cyan-100 text-black shadow-lg">
       {/* Top Header */}
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div className="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
         {/* Logo & Search */}
-        <div className="flex items-center space-x-6">
-          <Link to="/home" className="flex items-center">
+        <div className="flex items-center space-x-8">
+          <Link to="/home" className="flex items-center hover:opacity-80 transition-opacity duration-300">
             <img
               src="https://img.freepik.com/premium-vector/pet-logo-design_721155-2352.jpg"
               alt="VetTrack Logo"
-              className="h-12 w-12 rounded-full object-cover shadow-md"
+              className="h-12 w-12 rounded-full object-cover border-2 border-white shadow-md"
             />
-            <span className="ml-2 text-xl font-bold tracking-tight">VetTrack</span>
+            <span className="ml-3 text-2xl font-bold tracking-tight">VetTrack</span>
           </Link>
           <div className="relative">
             <input
               type="text"
               placeholder="Tìm kiếm dịch vụ, shop..."
-              className="p-2 pl-10 rounded-full text-gray-800 w-80 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-300"
+              className="p-3 pl-12 rounded-full text-gray-800 w-96 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 shadow-sm"
             />
-            <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+            <FaSearch className="absolute top-1/2 left-4 transform -translate-y-1/2 text-gray-500" />
           </div>
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center space-x-6">
-          <span className="flex items-center text-sm">
-            <FaPhone className="mr-1" /> Hotline: <strong>0867 7891</strong>
-          </span>
-          <a href="#" className="flex items-center hover:text-blue-200 transition-colors">
-            <FaHeart className="mr-1" /> Wishlist
-          </a>
+        <div className="flex items-center space-x-8">
+          
+          <Link
+            to="/wishlist"
+            className="flex items-center hover:text-blue-200 transition-colors duration-300"
+          >
+            <FaHeart className="mr-2" /> Wishlist
+          </Link>
+          <Link
+            to="/schedule"
+            className="flex items-center hover:text-blue-200 transition-colors duration-300"
+          >
+            <FaCalendarAlt className="mr-2" /> Xem Lịch
+          </Link>
+          
           {token && userData ? (
             <div className="relative group">
-              <Link to="/profile" className="flex items-center hover:text-blue-200 transition-colors">
+              <Link
+                to="/profile"
+                className="flex items-center hover:text-blue-200 transition-colors duration-300"
+              >
                 <img
                   src={userData.avtUrl || 'https://via.placeholder.com/40'}
                   alt="User Avatar"
-                  className="w-9 h-9 rounded-full border-2 border-white object-cover shadow-sm"
+                  className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-md"
                 />
                 <span className="ml-2 text-sm font-medium">{userData.firstName}</span>
               </Link>
-              <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-xl py-2 z-20 hidden group-hover:block transition-all duration-200">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 z-20 hidden group-hover:block transition-all duration-200 border border-gray-200">
                 <Link
                   to="/profile"
-                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 text-sm"
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
                 >
-                  <FaUser className="mr-2" /> My Profile
+                  <FaUser className="mr-2 text-gray-600" /> My Profile
+                </Link>
+                <Link
+                  to="/schedule"
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
+                >
+                  <FaCalendarAlt className="mr-2 text-gray-600" /> My Schedule
+                </Link>
+                <Link
+                  to="/schedule"
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
+                >
+                   My Schedule
                 </Link>
                 <button
                   onClick={() => {
                     localStorage.removeItem('token');
                     window.location.reload();
                   }}
-                  className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 text-sm"
+                  className="flex items-center w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
                 >
-                  <FaSignOutAlt className="mr-2" /> Logout
+                  <FaSignOutAlt className="mr-2 text-gray-600" /> Logout
                 </button>
               </div>
             </div>
           ) : (
-            <Link to="/" className="flex items-center hover:text-blue-200 transition-colors">
-              <FaUser className="mr-1" /> Đăng Nhập
+            <Link
+              to="/login"
+              className="flex items-center hover:text-blue-200 transition-colors duration-300"
+            >
+              <FaUser className="mr-2" /> Đăng Nhập
             </Link>
           )}
-          <a href="#" className="flex items-center hover:text-blue-200 transition-colors">
-            <FaShoppingCart className="mr-1" /> Giỏ Hàng (0)
-          </a>
-          
+          <Link
+            to="/cart"
+            className="relative flex items-center hover:text-blue-200 transition-colors duration-300"
+          >
+            <FaShoppingCart className="text-lg" size={18} />
+            <span className="ml-2 text-sm font-medium">Giỏ Hàng</span>
+            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+              3
+            </span>
+          </Link>
         </div>
       </div>
-
-      {/* Navigation */}
-      <nav className="bg-yellow-400 text-gray-800 px-4 py-3 shadow-md">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex space-x-8 text-sm font-medium">
-            <a href="#" className="flex items-center hover:text-blue-600 transition-colors">
-              <FaDog className="mr-1" /> Chó
-            </a>
-            <a href="#" className="flex items-center hover:text-blue-600 transition-colors">
-              <FaCat className="mr-1" /> Mèo
-            </a>
-            <a href="#" className="flex items-center hover:text-blue-600 transition-colors">
-              <FaBone className="mr-1" /> Thức ăn & Phụ kiện
-            </a>
-            <a href="#" className="flex items-center hover:text-blue-600 transition-colors">
-              <FaPaw className="mr-1" /> Dịch vụ thú cưng
-            </a>
-            <a href="#" className="flex items-center hover:text-blue-600 transition-colors">
-              <FaNewspaper className="mr-1" /> Tin tức
-            </a>
-            <a href="#" className="flex items-center hover:text-blue-600 transition-colors">
-              <FaTags className="mr-1" /> Ưu đãi hôm nay
-            </a>
-          </div>
-          <span className="text-sm font-semibold">
-            Giảm đến 50% cho thành viên -{' '}
-            <a href="#" className="underline hover:text-blue-600 transition-colors">
-              Đăng ký ngay!
-            </a>
-          </span>
-        </div>
-      </nav>
     </header>
   );
 };
