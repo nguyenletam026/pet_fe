@@ -4,6 +4,8 @@ import { API_URL } from "../../Base_Api";
 import { Link } from "react-router-dom";
 import Header from "./Header";
 import { gsap } from "gsap";
+import image from "../assets/image.png";
+import hinhanh from "../assets/image.png";
 
 interface Service {
   id: string;
@@ -37,7 +39,7 @@ const HomePage = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userLoading, setUserLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slideRef = useRef<HTMLImageElement>(null);
+  const slideRef = useRef<HTMLDivElement>(null); // Changed to div ref for the image container
 
   const token = localStorage.getItem("token");
   const axiosInstance = axios.create({
@@ -50,17 +52,17 @@ const HomePage = () => {
 
   const slides = [
     {
-      url: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&auto=format&fit=crop",
+      url: image,
       title: "Because Good Life Is More Than Just Good Foods",
       subtitle: "Dogs laugh, but they laugh with their tails",
     },
     {
-      url: "https://images.pexels.com/photos/2606018/pexels-photo-2606018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      url: "https://img4.thuthuatphanmem.vn/uploads/2020/05/16/hinh-anh-nen-meo-den_044008487.jpg",
       title: "Premium Pet Care Services",
       subtitle: "Providing the best for your furry friends",
     },
     {
-      url: "https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+      url: "https://taimienphi.vn/tmp/cf/aut/hinh-nen-den-1.jpg",
       title: "Happy Pets, Happy Life",
       subtitle: "Quality products for your beloved companions",
     },
@@ -149,38 +151,40 @@ const HomePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <Header userData={userData} token={token} />
 
       {/* Hero Section with Carousel */}
       <div className="relative w-full h-[600px] py-32">
-        <div className="absolute inset-0 w-full h-full">
-          <img
+        {/* Background Image Layer */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <div
             ref={slideRef}
-            src={slides[currentSlide].url}
-            alt={`Slide ${currentSlide + 1}`}
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full transition-opacity duration-500"
+            style={{ backgroundImage: `url(${slides[currentSlide].url})`, backgroundSize: "cover", backgroundPosition: "center" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50" />
         </div>
 
-        {/* Text and buttons container */}
-        <div className="relative container mx-auto px-4 flex flex-col items-center justify-center h-full text-center">
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4 transition-all duration-500">
-              {slides[currentSlide].title}
-            </h1>
-            <p className="text-gray-600 mb-6 transition-all duration-500">
-              {slides[currentSlide].subtitle}
-            </p>
-            <Link
-              to="/services"
-              className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors inline-block"
-            >
-              Đặt Lịch Ngay !!!
-            </Link>
-          </div>
-        </div>
+        {/* Text and buttons container (fixed on the left) */}
+        {/* Text and buttons container (fixed on the left) */}
+<div className="relative container mx-auto px-4 flex items-center justify-start h-full text-left max-w-7xl">
+  <div className="w-full md:w-1/2   p-8 rounded-xl">
+    <h1 className="text-4xl md:text-5xl font-bold text-amber-200 mb-4 transition-all duration-500 drop-shadow-lg">
+      {slides[currentSlide].title}
+    </h1>
+    <p className="text-stone-100 text-lg mb-6 transition-all duration-500 drop-shadow-md">
+      {slides[currentSlide].subtitle}
+    </p>
+    <Link
+      to="/services"
+      className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 
+      transition-all duration-300 inline-block shadow-lg hover:shadow-xl 
+      hover:-translate-y-0.5 font-medium"
+    >
+      Đặt Lịch Ngay !!!
+    </Link>
+  </div>
+</div>
 
         {/* Navigation Arrows */}
         <button
@@ -205,9 +209,7 @@ const HomePage = () => {
           {slides.map((_, index) => (
             <div
               key={index}
-              className={`w-3 h-3 rounded-full ${
-                currentSlide === index ? "bg-orange-500" : "bg-gray-400"
-              }`}
+              className={`w-3 h-3 rounded-full ${currentSlide === index ? "bg-orange-500" : "bg-gray-400"}`}
               onClick={() => setCurrentSlide(index)}
             />
           ))}
@@ -305,12 +307,6 @@ const HomePage = () => {
                   <h3 className="text-xl font-bold text-gray-800 mb-2">{shop.name}</h3>
                   <p className="text-gray-600 mb-2">{shop.address}</p>
                   <p className="text-gray-600 mb-4">{shop.phoneNumber}</p>
-                  <Link
-                    to={`/shop/${shop.id}`}
-                    className="block w-full bg-orange-500 text-white text-center py-2 rounded-lg hover:bg-orange-600 transition-colors"
-                  >
-                    Book Now
-                  </Link>
                 </div>
               </div>
             ))}

@@ -37,7 +37,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-white-50 to-cyan-100 text-black shadow-lg mt-4">
+    <header className="bg-gradient-to-r from-white-50 to-cyan-100 text-black shadow-lg mt-0">
       {/* Top Header */}
       <div className="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
         {/* Logo & Search */}
