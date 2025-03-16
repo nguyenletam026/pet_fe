@@ -189,7 +189,7 @@ const BookingPage = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.post('/bookings', bookingData);
-      console.log('Booking response:', response.data);
+      console.log('Booking data:', bookingData);
       const bookingResult: BookingResponse = response.data.result;
       setBookingId(bookingResult.id);
       setTotalPrice(bookingResult.totalPrice);
