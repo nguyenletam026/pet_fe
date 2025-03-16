@@ -11,6 +11,7 @@ import BookingPage from './components/BookingPage';
 import Schedule from './components/Schedule';
 import ProductPage from "./components/ProductPage";
 import CartPage from './components/Cart';
+import OrderHistoryPage from './components/OrderHistoryPage';
 const App = () => {
   return (
     <BrowserRouter>
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/" element={<LoginForm />} />
         <Route path="/products" element={<ProductPage />} />
+        <Route path="/order-history" element={<OrderHistoryPage />} />
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/services" element={<ServicePage />} />
         <Route path="/home" element={<HomePage />} />

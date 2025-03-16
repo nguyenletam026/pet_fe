@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../../Base_Api";
-import { Button, Modal, Input, Spin, Alert, Card, List, Image, Typography, Row, Col } from "antd";
-import { ShoppingCartOutlined, DollarOutlined, LoadingOutlined } from "@ant-design/icons";
+import { 
+  Button, Modal, Input, Spin, Alert, Card, List, Image, Typography, Row, Col,
+  Space, Divider, Tag 
+} from "antd";
+import { 
+  ShoppingCartOutlined, DollarOutlined, LoadingOutlined,
+  QrcodeOutlined, WalletOutlined, CheckCircleOutlined 
+} from "@ant-design/icons";
 import Header from "./Header";
+import { div } from "framer-motion/client";
 
 interface CartItem {
   productId: number;
@@ -89,6 +96,9 @@ const CartPage: React.FC = () => {
 
   const { Title, Text } = Typography;
 
+  // Preset amounts for quick selection
+  const presetAmounts = [100000, 200000, 500000];
+
   const token = localStorage.getItem("token");
   const axiosInstance = axios.create({
     baseURL: API_URL,
@@ -171,30 +181,49 @@ const CartPage: React.FC = () => {
       const response = await axiosInstance.get<{ code: number; message: string; result: OrderDetail }>(
         `/orders/${orderId}`
       );
-      console.log("Order Details Response:", response.data); // Log full response for debugging
-
+      console.log("Order Details Response:", response.data);
+  
+      if (response.data.code === 1000 && response.data.result) {
         const details = response.data.result;
+        
+        // Store the order details first
         setOrderDetail(details);
-        setOrderId(details.id); // Sync orderId with orderDetail.id
-        await getUserBalance();
-      
+        setOrderId(details.id);
+        
+        // Instead of relying on state updates, pass the data directly to getUserBalance
+        await getUserBalance(details, details.id);
+      } else {
+        setError("Failed to get valid order details");
+      }
     } catch (error) {
       console.error("Error getting order details:", error);
       setError("Failed to get order details");
     }
   };
-
-  const getUserBalance = async () => {
+  
+  const getUserBalance = async (orderDetailParam?: OrderDetail | null, orderIdParam?: number | null) => {
     try {
       const response = await axiosInstance.get<UserBalance>("/users/myInfo");
+      
       if (response.data.code === 1000) {
-        setUserBalance(response.data.result.balance as any);
-        if (orderDetail && orderDetail.totalPrice > response.data.result.balance) {
+        // Parse balance as number explicitly
+        const balance = parseFloat(response.data.result.balance as any);
+        setUserBalance(balance);
+        
+        // Use passed parameters first, then fall back to state if they're not provided
+        const currentOrderDetail = orderDetailParam || orderDetail;
+        const currentOrderId = orderIdParam || orderId;
+        
+        if (!currentOrderDetail || !currentOrderId) {
+          console.error("Missing orderDetail or orderId in getUserBalance");
+          setError("Order information is missing. Please try again.");
+          return;
+        }
+        
+        if (currentOrderDetail.totalPrice > balance) {
           setPaymentModalVisible(true);
-        } else if (orderDetail && orderId) {
-          await payOrder(orderId); // Use orderId from state
         } else {
-          setError("Order ID or order details not available for payment");
+          await payOrder(currentOrderId);
         }
       }
     } catch (error) {
@@ -205,6 +234,28 @@ const CartPage: React.FC = () => {
 
   const handlePaymentAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPaymentAmount(e.target.value);
+    // Clear any previously generated QR code when the amount changes
+    setQrCode("");
+    setTransactionCode("");
+  };
+
+  const selectPresetAmount = (amount: number) => {
+    setPaymentAmount(amount.toString());
+    // Generate QR code directly when preset amount is selected
+    generateQrCodeWithAmount(amount.toString());
+  };
+
+  const generateQrCodeWithAmount = (amount: string) => {
+    if (!amount || parseFloat(amount) <= 0) {
+      setError("Please enter a valid amount to top up");
+      return;
+    }
+    
+    const des = generateRandomString();
+    setTransactionCode(des);
+
+    const qrUrl = `https://qr.sepay.vn/img?acc=04128789601&bank=TPBANK&amount=${amount}&des=${des}&template=TEMPLATE&download=DOWNLOAD`;
+    setQrCode(qrUrl);
   };
 
   const generateQrCode = () => {
@@ -212,12 +263,7 @@ const CartPage: React.FC = () => {
       setError("Please enter a valid amount to top up");
       return;
     }
-    const amount = paymentAmount;
-    const des = generateRandomString();
-    setTransactionCode(des);
-
-    const qrUrl = `https://qr.sepay.vn/img?acc=04128789601&bank=TPBANK&amount=${amount}&des=${des}&template=TEMPLATE&download=DOWNLOAD`;
-    setQrCode(qrUrl);
+    generateQrCodeWithAmount(paymentAmount);
   };
 
   const checkTransaction = async () => {
@@ -300,49 +346,68 @@ const CartPage: React.FC = () => {
 
   if (orderSuccessful) {
     return (
-        
       <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
         <Header />
-        <Alert
-          message="Order Successful!"
-          description="Your order has been successfully paid and is now being processed."
-          type="success"
-          showIcon
-        />
-        <div style={{ marginTop: "20px", textAlign: "center" }}>
-          <Button type="primary" onClick={() => (window.location.href = "/home")}>
-            Tiếp tục Mua Sắm
-          </Button>
-        </div>
+        <Card className="success-card" style={{ 
+          borderRadius: "8px", 
+          boxShadow: "0 8px 16px rgba(0,0,0,0.08)" 
+        }}>
+          <div style={{ textAlign: "center", padding: "20px 0" }}>
+            <CheckCircleOutlined style={{ fontSize: "64px", color: "#52c41a" }} />
+            <Title level={2} style={{ margin: "20px 0", color: "#52c41a" }}>
+              Đặt hàng thành công!
+            </Title>
+            <Text style={{ fontSize: "16px", display: "block", marginBottom: "30px" }}>
+              Đơn hàng của bạn đã được thanh toán và đang được xử lý.
+            </Text>
+            <Button 
+              type="primary" 
+              size="large"
+              onClick={() => (window.location.href = "/home")}
+              style={{ padding: "0 40px", height: "48px", fontSize: "16px" }}
+            >
+              Tiếp tục Mua Sắm
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto", backgroundColor: "#fef2f2" }}>
+        <div>
         <Header />
-        <Alert message="Error" description={error} type="error" showIcon />
-        <div style={{ marginTop: "20px", textAlign: "center" }}>
-          <Button onClick={() => setError(null)}>Try Again</Button>
+      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+        <Alert message="Error" description={error} type="error" showIcon style={{ marginBottom: "20px" }} />
+        <div style={{ textAlign: "center" }}>
+          <Button onClick={() => setError(null)} size="large">Try Again</Button>
         </div>
       </div>
+        </div>
     );
   }
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+    <div>
         <Header />
-      <Card>
-        <Title level={2}>
-          <ShoppingCartOutlined /> Giỏ Hàng
+    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+      
+      <Card style={{ borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.09)" }}>
+        <Title level={2} style={{ marginBottom: "24px", display: "flex", alignItems: "center", color: "#1890ff" }}>
+          <ShoppingCartOutlined style={{ marginRight: "12px" }} /> Giỏ Hàng
         </Title>
 
         {cartItems.length === 0 ? (
           <div style={{ textAlign: "center", padding: "40px 0" }}>
-            <ShoppingCartOutlined style={{ fontSize: "48px", color: "#ccc" }} />
-            <p style={{ marginTop: "20px" }}>Your cart is empty</p>
-            <Button type="primary" href="/products?type=FOOD" style={{ marginTop: "20px" }}>
+            <ShoppingCartOutlined style={{ fontSize: "64px", color: "#ccc" }} />
+            <p style={{ marginTop: "20px", fontSize: "16px" }}>Giỏ hàng của bạn đang trống</p>
+            <Button 
+              type="primary" 
+              href="/products?type=FOOD" 
+              size="large"
+              style={{ marginTop: "20px", padding: "0 30px", height: "40px" }}
+            >
               Tiếp Tục Mua Sắm
             </Button>
           </div>
@@ -352,25 +417,54 @@ const CartPage: React.FC = () => {
               itemLayout="horizontal"
               dataSource={cartItems}
               renderItem={(item) => (
-                <List.Item>
+                <List.Item style={{ padding: "16px 0", borderBottom: "1px solid #f0f0f0" }}>
                   <List.Item.Meta
-                    avatar={<Image width={80} src={item.product?.image || "https://placeholder.com/80"} />}
-                    title={item.product?.name || `Product #${item.productId}`}
-                    description={`Giá: ${item.product?.price || 0}`}
+                    avatar={
+                      <Image 
+                        width={100} 
+                        height={100}
+                        style={{ objectFit: "cover", borderRadius: "4px" }}
+                        src={item.product?.image || "https://placeholder.com/80"} 
+                      />
+                    }
+                    title={
+                      <Text style={{ fontSize: "16px", fontWeight: "500" }}>
+                        {item.product?.name || `Product #${item.productId}`}
+                      </Text>
+                    }
+                    description={
+                      <Tag color="blue">
+                        {item.product?.price?.toLocaleString() || 0} VNĐ
+                      </Tag>
+                    }
                   />
                   <div>
-                    <Text>Số Lượng: {item.quantity}</Text>
-                    <br />
-                    <Text strong>Giá: {((item.product?.price || 0) * item.quantity).toFixed(2)}</Text>
+                    <Text style={{ marginBottom: "8px", display: "block" }}>
+                      Số Lượng: <Text strong>{item.quantity}</Text>
+                    </Text>
+                    <Text strong style={{ fontSize: "16px", color: "#ff4d4f" }}>
+                      {((item.product?.price || 0) * item.quantity).toLocaleString()} VNĐ
+                    </Text>
                   </div>
                 </List.Item>
               )}
             />
 
+            <Divider />
+
             <Row justify="end" style={{ marginTop: "20px" }}>
               <Col>
-                <Title level={4}>Tổng: {calculateTotal().toFixed(2)} VNĐ</Title>
-                <Button type="primary" size="large" onClick={createOrder} loading={loading}>
+                <Title level={3} style={{ color: "#ff4d4f", marginBottom: "16px" }}>
+                  Tổng: {calculateTotal().toLocaleString()} VNĐ
+                </Title>
+                <Button 
+                  type="primary" 
+                  size="large"
+                  icon={<DollarOutlined />}
+                  onClick={createOrder} 
+                  loading={loading}
+                  style={{ height: "48px", padding: "0 30px", fontSize: "16px" }}
+                >
                   Thanh Toán
                 </Button>
               </Col>
@@ -380,56 +474,124 @@ const CartPage: React.FC = () => {
       </Card>
 
       <Modal
-        title="Additional Payment Required"
+        title={
+          <div style={{ display: "flex", alignItems: "center", fontSize: "20px", color: "#1890ff" }}>
+            <WalletOutlined style={{ marginRight: "10px" }} /> Yêu cầu nạp tiền
+          </div>
+        }
         open={paymentModalVisible}
         onCancel={() => setPaymentModalVisible(false)}
+        width={700}
         footer={null}
+        centered
       >
-        <div style={{ textAlign: "center" }}>
+        <div style={{ padding: "10px 0" }}>
           <Alert
-            message={`Your balance: ${typeof userBalance === "number" ? userBalance.toFixed(2) : "0.00"} is insufficient for this order ($${
-              orderDetail?.totalPrice.toFixed(2)
-            })`}
+            message={
+              <div style={{ textAlign: "center", padding: "10px" }}>
+                <div style={{ fontSize: "16px", marginBottom: "8px" }}>
+                  Số dư ví của bạn: <Text strong style={{ fontSize: "18px" }}>{userBalance.toLocaleString()} VNĐ</Text>
+                </div>
+                <div style={{ fontSize: "16px" }}>
+                  Số tiền cần thanh toán: <Text type="danger" strong style={{ fontSize: "18px" }}>{orderDetail?.totalPrice.toLocaleString()} VNĐ</Text>
+                </div>
+              </div>
+            }
             type="warning"
-            style={{ marginBottom: "20px" }}
+            style={{ marginBottom: "24px" }}
           />
 
-          <Input
-            addonBefore=""
-            placeholder="Enter amount to top up"
-            value={paymentAmount}
-            onChange={handlePaymentAmountChange}
-            style={{ marginBottom: "20px" }}
-            type="number"
-            min="0"
-          />
+          <div style={{ marginBottom: "24px", textAlign: "center" }}>
+            <Text style={{ display: "block", marginBottom: "12px", fontSize: "16px" }}>
+              Chọn số tiền nạp nhanh:
+            </Text>
+            <Space size="middle">
+              {presetAmounts.map(amount => (
+                <Button 
+                  key={amount} 
+                  type={paymentAmount === amount.toString() ? "primary" : "default"}
+                  size="large"
+                  onClick={() => selectPresetAmount(amount)}
+                  style={{ minWidth: "120px", height: "44px" }}
+                >
+                  {amount.toLocaleString()} VNĐ
+                </Button>
+              ))}
+            </Space>
+          </div>
 
-          <Button type="primary" onClick={generateQrCode} style={{ marginBottom: "20px" }}>
-            Generate Payment QR
-          </Button>
+          <Divider plain>Hoặc</Divider>
+
+          <div style={{ display: "flex", marginBottom: "24px" }}>
+            <Input
+              size="large"
+              placeholder="Nhập số tiền khác"
+              value={paymentAmount}
+              onChange={handlePaymentAmountChange}
+              type="number"
+              min="0"
+              suffix="VNĐ"
+              style={{ marginRight: "12px", fontSize: "16px" }}
+            />
+            <Button 
+              type="primary" 
+              size="large"
+              icon={<QrcodeOutlined />}
+              onClick={generateQrCode}
+              disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
+            >
+              Tạo mã QR
+            </Button>
+          </div>
 
           {qrCode && (
-            <div style={{ marginTop: "20px" }}>
-              <img src={qrCode} alt="Payment QR Code" style={{ maxWidth: "100%" }} />
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <Card 
+                style={{ 
+                  backgroundColor: "#f9f9f9", 
+                  borderRadius: "8px",
+                  padding: "10px"
+                }}
+              >
+                <div style={{ padding: "15px", backgroundColor: "white", display: "inline-block", borderRadius: "8px" }}>
+                  <img 
+                    src={qrCode} 
+                    alt="Payment QR Code" 
+                    style={{ maxWidth: "100%", maxHeight: "300px" }} 
+                  />
+                </div>
+                <div style={{ margin: "20px 0 10px" }}>
+                  <Text type="secondary" style={{ display: "block", marginBottom: "10px" }}>
+                    Quét mã QR để chuyển <Text strong>{parseInt(paymentAmount).toLocaleString()} VNĐ</Text>
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: "12px", display: "block" }}>
+                    Mã giao dịch: <Text code>{transactionCode}</Text>
+                  </Text>
+                </div>
+              </Card>
+
               <Button
                 type="primary"
+                size="large"
+                icon={<CheckCircleOutlined />}
                 onClick={checkTransaction}
                 loading={checkingPayment}
-                style={{ marginTop: "20px" }}
+                style={{ marginTop: "24px", height: "48px", width: "100%" }}
               >
-                {checkingPayment ? "Checking Payment..." : "Confirm Payment"}
+                {checkingPayment ? "Đang kiểm tra thanh toán..." : "Xác nhận đã thanh toán"}
               </Button>
             </div>
           )}
 
           {checkingPayment && (
-            <div style={{ marginTop: "20px" }}>
-              <Spin tip="Checking payment status..." />
-              <p>Please wait while we verify your payment...</p>
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+              <Spin tip="Đang kiểm tra trạng thái thanh toán..." />
+              <p style={{ marginTop: "12px" }}>Vui lòng chờ trong khi hệ thống xác minh thanh toán của bạn...</p>
             </div>
           )}
         </div>
       </Modal>
+    </div>
     </div>
   );
 };
