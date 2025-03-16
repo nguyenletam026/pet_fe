@@ -8,6 +8,7 @@ import HomePage from './components/HomePage';
 import OwnerPage from './components/OwnerPage';
 import ServicePage from './components/ServicePage';
 import BookingPage from './components/BookingPage';
+import Schedule from './components/Schedule';
 const App = () => {
   return (
     <BrowserRouter>
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/signup" element={<SignupForm />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/owner" element={<OwnerPage />} />
+        <Route path="/schedule" element={<Schedule />} />
       </Routes>
     </BrowserRouter>
   );
