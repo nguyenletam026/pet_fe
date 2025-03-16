@@ -117,7 +117,7 @@ const Header = () => {
   </div>
 ) : (
             <Link
-              to="/login"
+              to="/"
               className="flex items-center hover:text-blue-200 transition-colors duration-300"
             >
               <FaUser className="mr-2" /> Đăng Nhập

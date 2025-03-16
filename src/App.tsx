@@ -10,10 +10,12 @@ import ServicePage from './components/ServicePage';
 import BookingPage from './components/BookingPage';
 import Schedule from './components/Schedule';
 import ProductPage from "./components/ProductPage";
+import CartPage from './components/Cart';
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/" element={<LoginForm />} />
         <Route path="/products" element={<ProductPage />} />
         <Route path="/booking" element={<BookingPage />} />
