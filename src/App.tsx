@@ -9,11 +9,13 @@ import OwnerPage from './components/OwnerPage';
 import ServicePage from './components/ServicePage';
 import BookingPage from './components/BookingPage';
 import Schedule from './components/Schedule';
+import ProductPage from "./components/ProductPage";
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginForm />} />
+        <Route path="/products" element={<ProductPage />} />
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/services" element={<ServicePage />} />
         <Route path="/home" element={<HomePage />} />
