@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { API_URL } from "../../Base_Api";
 import { Link } from "react-router-dom";
 import Header from "./Header";
+import { gsap } from "gsap";
 
 interface Service {
   id: string;
@@ -36,6 +37,7 @@ const HomePage = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [userLoading, setUserLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const slideRef = useRef<HTMLImageElement>(null);
 
   const token = localStorage.getItem("token");
   const axiosInstance = axios.create({
@@ -50,24 +52,31 @@ const HomePage = () => {
     {
       url: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&auto=format&fit=crop",
       title: "Because Good Life Is More Than Just Good Foods",
-      subtitle: "Dogs laugh, but they laugh with their tails"
+      subtitle: "Dogs laugh, but they laugh with their tails",
     },
     {
       url: "https://images.pexels.com/photos/2606018/pexels-photo-2606018.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       title: "Premium Pet Care Services",
-      subtitle: "Providing the best for your furry friends"
+      subtitle: "Providing the best for your furry friends",
     },
     {
       url: "https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
       title: "Happy Pets, Happy Life",
-      subtitle: "Quality products for your beloved companions"
-    }
+      subtitle: "Quality products for your beloved companions",
+    },
   ];
 
   useEffect(() => {
     fetchShops();
     if (token) fetchUserData();
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleSlideChange();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [currentSlide]);
 
   const fetchShops = async () => {
     setLoading(true);
@@ -93,12 +102,52 @@ const HomePage = () => {
     }
   };
 
+  const handleSlideChange = () => {
+    if (slideRef.current) {
+      // Animation tan rã cho slide cũ
+      gsap.to(slideRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        x: 20,
+        y: 20,
+        duration: 0.5,
+        ease: "power1.out",
+        onComplete: () => {
+          setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+          // Animation fade in cho slide mới
+          gsap.fromTo(
+            slideRef.current,
+            { opacity: 0, scale: 0.95, x: -20, y: -20 },
+            { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.5, ease: "power1.in" }
+          );
+        },
+      });
+    }
+  };
+
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    if (slideRef.current) {
+      gsap.to(slideRef.current, {
+        opacity: 0,
+        scale: 0.95,
+        x: -20,
+        y: -20,
+        duration: 0.5,
+        ease: "power1.out",
+        onComplete: () => {
+          setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+          gsap.fromTo(
+            slideRef.current,
+            { opacity: 0, scale: 0.95, x: 20, y: 20 },
+            { opacity: 1, scale: 1, x: 0, y: 0, duration: 0.5, ease: "power1.in" }
+          );
+        },
+      });
+    }
   };
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    handleSlideChange();
   };
 
   return (
@@ -106,13 +155,13 @@ const HomePage = () => {
       <Header userData={userData} token={token} />
 
       {/* Hero Section with Carousel */}
-      <div className="relative w-full h-[600px] py-32 mt-"> {/* Added mt-20 */}
-        {/* Carousel Images */}
+      <div className="relative w-full h-[600px] py-32 ">
         <div className="absolute inset-0 w-full h-full">
           <img
+            ref={slideRef}
             src={slides[currentSlide].url}
             alt={`Slide ${currentSlide + 1}`}
-            className="w-full h-full object-cover transition-opacity duration-500"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-blue-50/50" />
         </div>
@@ -127,11 +176,11 @@ const HomePage = () => {
               {slides[currentSlide].subtitle}
             </p>
             <Link
-  to="/services"
-  className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors inline-block"
->
-  Shop Now
-</Link>
+              to="/services"
+              className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors inline-block"
+            >
+              Shop Now
+            </Link>
           </div>
         </div>
 
@@ -159,7 +208,7 @@ const HomePage = () => {
             <div
               key={index}
               className={`w-3 h-3 rounded-full ${
-                currentSlide === index ? 'bg-orange-500' : 'bg-gray-400'
+                currentSlide === index ? "bg-orange-500" : "bg-gray-400"
               }`}
               onClick={() => setCurrentSlide(index)}
             />
@@ -242,11 +291,7 @@ const HomePage = () => {
                 className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
               >
                 {shop.avtUrl ? (
-                  <img
-                    src={shop.avtUrl}
-                    alt={shop.name}
-                    className="w-full h-48 object-cover"
-                  />
+                  <img src={shop.avtUrl} alt={shop.name} className="w-full h-48 object-cover" />
                 ) : (
                   <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
                     <span className="text-gray-500">No Image</span>
@@ -292,6 +337,39 @@ const HomePage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Inline CSS for Flip Animation */}
+      <style jsx>{`
+        @keyframes flipOut {
+          0% {
+            opacity: 1;
+            transform: perspective(400px) rotateY(0deg);
+          }
+          100% {
+            opacity: 0;
+            transform: perspective(400px) rotateY(90deg);
+          }
+        }
+
+        @keyframes flipIn {
+          0% {
+            opacity: 0;
+            transform: perspective(400px) rotateY(-90deg);
+          }
+          100% {
+            opacity: 1;
+            transform: perspective(400px) rotateY(0deg);
+          }
+        }
+
+        .flip-out {
+          animation: flipOut 0.5s ease-out forwards;
+        }
+
+        .flip-in {
+          animation: flipIn 0.5s ease-in forwards;
+        }
+      `}</style>
     </div>
   );
 };

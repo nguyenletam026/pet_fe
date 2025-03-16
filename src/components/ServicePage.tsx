@@ -119,7 +119,6 @@ const ServicePage = () => {
     fetchServiceTypes();
   }, []);
 
-  // Fetch shops and calculate distances
   useEffect(() => {
     if (selectedServiceTypeId) {
       const fetchShopsAndDistances = async () => {
@@ -180,7 +179,6 @@ const ServicePage = () => {
     }
   }, [selectedServiceTypeId, userLocation]);
 
-  // Format distance for display
   const formatDistance = (distance: number | undefined) => {
     if (distance === undefined || distance === Infinity) {
       return 'N/A';
@@ -192,12 +190,12 @@ const ServicePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-white-100 to-white-100">
       {/* Header */}
       <Header />
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-12">
+      <main className="min-h-screen bg-gradient-to-br from-yellow-100 to-yellow-100 flex-1 px-4 py-12">
         <div className="container mx-auto">
           {/* Title */}
           <h2 className="text-5xl font-extrabold text-gray-800 mb-12 text-center">
