@@ -37,6 +37,22 @@ interface UpdateForm {
   address: string;
 }
 
+// Product interfaces
+interface Product {
+  id: number; // Changed to number to match response
+  name: string;
+  price: number;
+  image?: string;
+  type: string; // Changed from productType to type to match response
+}
+
+interface ProductCreateRequest {
+  name: string;
+  price: number;
+  image?: string; // Optional URL for pre-existing image
+  type: string;  // Changed from productType to type to match request
+}
+
 const AdminPage = () => {
   // User states
   const [users, setUsers] = useState<UserResponse[]>([]);
@@ -52,7 +68,7 @@ const AdminPage = () => {
 
   // Service states
   const [services, setServices] = useState<ServiceType[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'services'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'services' | 'products'>('users');
   const [serviceForm, setServiceForm] = useState({
     name: '',
     price: 0,
@@ -60,6 +76,17 @@ const AdminPage = () => {
     description: ''
   });
   const [serviceFile, setServiceFile] = useState<File | null>(null);
+
+  // Product states
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productForm, setProductForm] = useState<ProductCreateRequest>({
+    name: '',
+    price: 0,
+    image: '',
+    type: ''
+  });
+  const [productFile, setProductFile] = useState<File | null>(null);
+  const [showProductModal, setShowProductModal] = useState(false);
 
   // General states
   const [error, setError] = useState('');
@@ -79,8 +106,10 @@ const AdminPage = () => {
   useEffect(() => {
     if (activeTab === 'users') {
       fetchAllUsers();
-    } else {
+    } else if (activeTab === 'services') {
       fetchAllServices();
+    } else if (activeTab === 'products') {
+      fetchAllProducts();
     }
   }, [activeTab]);
 
@@ -196,7 +225,7 @@ const AdminPage = () => {
         formData.append('avtFile', serviceFile);
       }
 
-      const response = await axiosInstance.post('/service-types', formData, {
+      await axiosInstance.post('/service-types', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
@@ -222,6 +251,67 @@ const AdminPage = () => {
       } catch (err) {
         setError('Failed to delete service');
         console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Product management functions
+  const fetchAllProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get('/products');
+      setProducts(Array.isArray(response.data.result) ? response.data.result : []);
+    } catch (err) {
+      setError('Failed to fetch products. Please try again.');
+      console.error('Fetch products error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append(
+        "request",
+        new Blob([JSON.stringify(productForm)], { type: "application/json" })
+      );
+      if (productFile) {
+        formData.append('image', productFile);
+      }
+
+      const response = await axiosInstance.post('/products', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      setProductForm({ name: '', price: 0, image: '', type: '' });
+      setProductFile(null);
+      setShowProductModal(false);
+      fetchAllProducts();
+      alert('Product created successfully!');
+    } catch (err) {
+      setError('Failed to create product. Please try again.');
+      console.error('Create product error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      setLoading(true);
+      try {
+        await axiosInstance.delete(`/products/${productId}`);
+        fetchAllProducts();
+        alert('Product deleted successfully!');
+      } catch (err) {
+        setError('Failed to delete product. Please try again.');
+        console.error('Delete product error:', err);
       } finally {
         setLoading(false);
       }
@@ -263,6 +353,14 @@ const AdminPage = () => {
               }`}
             >
               Manage Service
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`block w-full text-left p-2 rounded ${
+                activeTab === 'products' ? 'text-blue-600 font-semibold bg-blue-50' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Manage Products
             </button>
           </nav>
         </aside>
@@ -420,7 +518,7 @@ const AdminPage = () => {
                   </div>
                 )}
               </>
-            ) : (
+            ) : activeTab === 'services' ? (
               <>
                 <h2 className="text-2xl font-semibold text-gray-800 mb-6">Manage Services</h2>
                 
@@ -532,6 +630,141 @@ const AdminPage = () => {
                   <p className="text-gray-500">No services found.</p>
                 )}
               </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-semibold text-gray-800 mb-6">Manage Products</h2>
+                <button
+                  onClick={() => setShowProductModal(true)}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg mb-6 hover:bg-green-600"
+                >
+                  Create Product
+                </button>
+
+                {/* Products Table */}
+                {products.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-200 text-gray-700">
+                          <th className="p-3">ID</th>
+                          <th className="p-3">Name</th>
+                          <th className="p-3">Price</th>
+                          <th className="p-3">Type</th>
+                          <th className="p-3">Image</th>
+                          <th className="p-3">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {products.map((product) => (
+                          <tr key={product.id} className="border-b hover:bg-gray-50">
+                            <td className="p-3">{product.id}</td>
+                            <td className="p-3">{product.name}</td>
+                            <td className="p-3">${product.price.toFixed(2)}</td>
+                            <td className="p-3">{product.type}</td>
+                            <td className="p-3">
+                              {product.image ? (
+                                <img src={product.image} alt={product.name} className="w-12 h-12 object-cover" />
+                              ) : 'N/A'}
+                            </td>
+                            <td className="p-3">
+                              <button
+                                onClick={() => handleDeleteProduct(product.id.toString())} // Convert to string for consistency
+                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No products found.</p>
+                )}
+
+                {/* Product Creation Modal */}
+                <Modal
+                  isOpen={showProductModal}
+                  onRequestClose={() => setShowProductModal(false)}
+                  contentLabel="Create Product"
+                  className="modal"
+                  overlayClassName="modal-overlay"
+                >
+                  <div className="p-6 bg-white rounded-lg shadow-lg">
+                    <h2 className="text-2xl font-semibold mb-4">Create Product</h2>
+                    <form onSubmit={handleCreateProduct} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-700">Product Name</label>
+                        <input
+                          type="text"
+                          value={productForm.name}
+                          onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                          className="w-full p-2 border rounded-lg"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700">Price</label>
+                        <input
+                          type="number"
+                          value={productForm.price}
+                          onChange={(e) => setProductForm({ ...productForm, price: parseFloat(e.target.value) })}
+                          className="w-full p-2 border rounded-lg"
+                          required
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700">Type</label>
+                        <input
+                          type="text"
+                          value={productForm.type}
+                          onChange={(e) => setProductForm({ ...productForm, type: e.target.value })}
+                          className="w-full p-2 border rounded-lg"
+                          required
+                          placeholder="e.g., FOOD, TOY, ACCESSORY"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700">Image URL (optional)</label>
+                        <input
+                          type="text"
+                          value={productForm.image || ''}
+                          onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                          className="w-full p-2 border rounded-lg"
+                          placeholder="Enter image URL or upload below"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-700">Image Upload (optional)</label>
+                        <input
+                          type="file"
+                          onChange={(e) => setProductFile(e.target.files?.[0] || null)}
+                          className="w-full p-2"
+                        />
+                      </div>
+                      <div className="col-span-2 flex gap-4 mt-4">
+                        <button
+                          type="submit"
+                          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                          disabled={loading}
+                        >
+                          {loading ? 'Creating...' : 'Create Product'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowProductModal(false)}
+                          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </Modal>
+              </>
             )}
           </div>
         </main>
@@ -565,6 +798,28 @@ const AdminPage = () => {
           </div>
         </Modal>
       )}
+
+      {/* CSS for Modal */}
+      <style jsx>{`
+        .modal {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          max-height: 80vh;
+          overflow-y: auto;
+          width: 90%;
+          max-width: 500px;
+        }
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+        }
+      `}</style>
     </div>
   );
 };

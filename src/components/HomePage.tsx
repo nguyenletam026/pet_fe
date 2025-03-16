@@ -104,7 +104,6 @@ const HomePage = () => {
 
   const handleSlideChange = () => {
     if (slideRef.current) {
-      // Animation tan rã cho slide cũ
       gsap.to(slideRef.current, {
         opacity: 0,
         scale: 0.95,
@@ -114,7 +113,6 @@ const HomePage = () => {
         ease: "power1.out",
         onComplete: () => {
           setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-          // Animation fade in cho slide mới
           gsap.fromTo(
             slideRef.current,
             { opacity: 0, scale: 0.95, x: -20, y: -20 },
@@ -155,7 +153,7 @@ const HomePage = () => {
       <Header userData={userData} token={token} />
 
       {/* Hero Section with Carousel */}
-      <div className="relative w-full h-[600px] py-32 ">
+      <div className="relative w-full h-[600px] py-32">
         <div className="absolute inset-0 w-full h-full">
           <img
             ref={slideRef}
@@ -179,7 +177,7 @@ const HomePage = () => {
               to="/services"
               className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors inline-block"
             >
-              Shop Now
+              Đặt Lịch Ngay !!!
             </Link>
           </div>
         </div>
@@ -250,7 +248,7 @@ const HomePage = () => {
               </div>
             </div>
             <button className="mt-6 bg-orange-500 text-white px-6 py-2 rounded-full hover:bg-orange-600 transition-colors">
-              Read More
+              Tìm Hiểu Về Chúng Tôi
             </button>
           </div>
         </div>
@@ -261,18 +259,24 @@ const HomePage = () => {
         <div className="grid md:grid-cols-2 gap-8">
           <div className="bg-orange-400 rounded-2xl p-8 text-white flex items-center">
             <div>
-              <h3 className="text-2xl font-bold mb-2">We Care & Share Love For Pets</h3>
-              <button className="bg-white text-orange-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors">
-                Read More
-              </button>
+              <h3 className="text-2xl font-bold mb-2">Đồ Ăn Cho Thú Cưng Của Bạn</h3>
+              <Link
+                to="/products?type=FOOD"
+                className="bg-white text-orange-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors inline-block"
+              >
+                Mua Ngay !!!
+              </Link>
             </div>
           </div>
           <div className="bg-pink-400 rounded-2xl p-8 text-white flex items-center">
             <div>
-              <h3 className="text-2xl font-bold mb-2">Dog Clothing & Accessories</h3>
-              <button className="bg-white text-pink-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors">
-                Shop Now
-              </button>
+              <h3 className="text-2xl font-bold mb-2">Phụ Kiện Cho Thú Cưng Của Bạn</h3>
+              <Link
+                to="/products?type=ACCESSORY"
+                className="bg-white text-pink-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors inline-block"
+              >
+                Mua Ngay !!!
+              </Link>
             </div>
           </div>
         </div>
