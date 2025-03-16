@@ -77,7 +77,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-yellow-50">
       {/* Header */}
       <Header userData={userData} token={token} />  
       {/* Banner */}

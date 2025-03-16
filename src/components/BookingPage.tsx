@@ -116,7 +116,16 @@ const BookingPage = () => {
   const [rechargeAmount, setRechargeAmount] = useState<number | null>(null);
   const [rechargeQrUrl, setRechargeQrUrl] = useState<string | null>(null);
   const [rechargeDes, setRechargeDes] = useState<string | null>(null);
-  const [serviceType, setServiceType] = useState<any>(null); // Add state for serviceType
+  const [serviceType, setServiceType] = useState<any>(null);
+  const [showAddPetForm, setShowAddPetForm] = useState(false);
+  const [newPet, setNewPet] = useState({
+    name: "",
+    species: "",
+    breed: "",
+    age: "",
+    weight: "",
+  });
+  const [petImage, setPetImage] = useState<File | null>(null);
 
   const token = localStorage.getItem('token');
   const axiosInstance = axios.create({
@@ -132,7 +141,6 @@ const BookingPage = () => {
     const fetchServiceType = async () => {
       try {
         const response = await axiosInstance.get(`/service-types/${serviceTypeId}`);
-        console.log('Service type response:', response.data);
         setServiceType(response.data.result);
       } catch (err) {
         setError('Không thể tải thông tin dịch vụ. Vui lòng thử lại.');
@@ -151,7 +159,6 @@ const BookingPage = () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get('/pets');
-        console.log('Fetch pets response:', response.data);
         const petsData = response.data.result || [];
         setPets(petsData);
         if (petsData.length > 0) {
@@ -174,7 +181,6 @@ const BookingPage = () => {
       const fetchUserInfo = async () => {
         try {
           const response = await axiosInstance.get<UserInfoResponse>('/users/myInfo');
-          console.log('User info response:', response.data);
           setUserInfo(response.data);
         } catch (err) {
           setError('Không thể tải thông tin người dùng. Vui lòng thử lại.');
@@ -192,24 +198,23 @@ const BookingPage = () => {
 
   // Function to calculate total price based on pet weight
   const calculateTotalPrice = () => {
-    if (!serviceType || !selectedPetId) return 0; // Return 0 if serviceType or selectedPetId is not available
+    if (!serviceType || !selectedPetId) return 0;
 
     const selectedPet = pets.find((pet) => pet.id === selectedPetId);
-    if (!selectedPet) return serviceType.price; // If no pet is selected, return the original price
+    if (!selectedPet) return serviceType.price;
 
     const weight = selectedPet.weight;
     const basePrice = serviceType.price;
 
     if (weight < 5) {
-      return basePrice; // Original price
-    } else if (weight >= 5 && weight < 10) {
-      return basePrice * 1.5; // Price * 1.5
+      return basePrice;
+    } else if (weight >= 5 && weight <= 10) {
+      return basePrice * 1.5;
     } else {
-      return basePrice * 2; // Price * 2
+      return basePrice * 2;
     }
   };
 
-  // Calculate total price whenever selectedPetId or serviceType changes
   const totalPriceBasedOnWeight = calculateTotalPrice();
 
   // Handle booking submission
@@ -218,7 +223,6 @@ const BookingPage = () => {
       setError('Vui lòng chọn thú cưng và thời gian đặt lịch.');
       return;
     }
-    console.log('serviceTypeId:', serviceTypeId); // Log serviceTypeId
     const bookingData: BookingRequest = {
       serviceTypeId,
       shopId,
@@ -230,20 +234,19 @@ const BookingPage = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.post('/bookings', bookingData);
-      console.log('Booking data:', bookingData);
       const bookingResult: BookingResponse = response.data.result;
       setBookingId(bookingResult.id);
       setTotalPrice(bookingResult.totalPrice);
 
       if (paymentMethod === 'WALLET') {
-        setShowWalletPopup(true); // Show wallet popup to compare balance
+        setShowWalletPopup(true);
       } else if (paymentMethod === 'QR_CODE') {
         const des = generateRandomDes();
         const qrUrl = `https://qr.sepay.vn/img?acc=04128789601&bank=TPBANK&amount=${bookingResult.totalPrice}&des=${des}&download=DOWNLOAD`;
         setQrCodeUrl(qrUrl);
         setTransactionDes(des);
         setSuccess('Vui lòng quét QR code để thanh toán.');
-        setTimeLeft(300); // Reset 5-minute timer
+        setTimeLeft(300);
       }
     } catch (err) {
       setError('Đặt lịch thất bại. Vui lòng thử lại.');
@@ -260,22 +263,17 @@ const BookingPage = () => {
     const balance = parseFloat(userInfo.result.balance);
     if (totalPrice > balance) {
       setShowWalletPopup(false);
-      setShowRechargePopup(true); // Show recharge popup if balance is insufficient
+      setShowRechargePopup(true);
     } else {
       try {
         const response = await axiosInstance.post<WalletTransactionResponse>('/transactions/wallet', null, {
           params: { bookingId },
         });
-        console.log('Wallet transaction response:', response.data);
         if (response.data.code === 1000 && response.data.result === "Payment successful") {
-          // Fetch detailed booking information
           const detailedResponse = await axiosInstance.get<DetailedBookingResponse>(`/bookings/${bookingId}`);
-          console.log('Detailed booking response:', detailedResponse.data);
           setDetailedBooking(detailedResponse.data);
           setSuccess('Thanh toán qua ví thành công! Xem chi tiết đặt lịch.');
           setShowWalletPopup(false);
-          // Remove the automatic redirect to let the user view details
-          // setTimeout(() => navigate('/'), 2000);
         } else {
           setError('Thanh toán qua ví thất bại. Vui lòng thử lại.');
         }
@@ -296,8 +294,48 @@ const BookingPage = () => {
     setRechargeDes(des);
     const qrUrl = `https://qr.sepay.vn/img?acc=04128789601&bank=TPBANK&amount=${rechargeAmount}&des=${des}&template=TEMPLATE&download=DOWNLOAD`;
     setRechargeQrUrl(qrUrl);
-    setShowRechargePopup(true); // Show recharge QR code
-    setTimeLeft(300); // Reset 5-minute timer
+    setShowRechargePopup(true);
+    setTimeLeft(300);
+  };
+
+  // Handle add pet
+  const handleAddPet = async () => {
+    if (!newPet.name || !newPet.species || !newPet.breed || !newPet.age || !newPet.weight) {
+      setError("Vui lòng điền đầy đủ thông tin thú cưng.");
+      return;
+    }
+
+    const petRequest = {
+      name: newPet.name,
+      species: newPet.species,
+      breed: newPet.breed,
+      age: parseInt(newPet.age),
+      weight: parseFloat(newPet.weight),
+    };
+
+    const formData = new FormData();
+    formData.append("request", new Blob([JSON.stringify(petRequest)], { type: "application/json" }));
+    if (petImage) formData.append("avtFile", petImage);
+
+    try {
+      const response = await axiosInstance.post("/pets", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.data.code === 1000) {
+        alert("Thêm Pet thành công!");
+        setPets([...pets, response.data.result]);
+        setShowAddPetForm(false);
+        setNewPet({ name: "", species: "", breed: "", age: "", weight: "" });
+        setPetImage(null);
+        if (pets.length === 0) setSelectedPetId(response.data.result.id);
+      } else {
+        alert("Thêm Pet thất bại!");
+      }
+    } catch (error) {
+      console.error("Lỗi thêm Pet:", error);
+      alert("Có lỗi xảy ra!");
+    }
   };
 
   // Check recharge transaction status
@@ -306,7 +344,6 @@ const BookingPage = () => {
     let timeout: NodeJS.Timeout;
 
     if (rechargeQrUrl && rechargeDes && rechargeAmount) {
-      console.log('Starting recharge polling with:', { rechargeQrUrl, rechargeDes, rechargeAmount });
       interval = setInterval(async () => {
         try {
           const response = await axiosInstance.get<WalletTransactionResponse>('/transactions/check_wallet', {
@@ -315,7 +352,6 @@ const BookingPage = () => {
               des: rechargeDes,
             },
           });
-          console.log('Recharge check response:', response.data);
           if (response.data.code === 1000 && response.data.result === true) {
             setSuccess('Nạp tiền thành công! Vui lòng kiểm tra lại số dư.');
             setRechargeQrUrl(null);
@@ -330,7 +366,7 @@ const BookingPage = () => {
           console.error('Recharge check error:', err);
           setError('Có lỗi khi kiểm tra trạng thái nạp tiền. Vui lòng thử lại.');
         }
-      }, 5000); // Check every 5 seconds
+      }, 5000);
 
       timeout = setTimeout(() => {
         clearInterval(interval);
@@ -339,10 +375,9 @@ const BookingPage = () => {
           setRechargeQrUrl(null);
           setRechargeDes(null);
         }
-      }, 300000); // 5-minute timeout
+      }, 300000);
 
       return () => {
-        console.log('Cleaning up recharge polling');
         clearInterval(interval);
         clearTimeout(timeout);
       };
@@ -370,7 +405,6 @@ const BookingPage = () => {
     let timeout: NodeJS.Timeout;
 
     if (qrCodeUrl && bookingId && totalPrice && transactionDes) {
-      console.log('Starting QR code polling with:', { qrCodeUrl, bookingId, totalPrice, transactionDes });
       interval = setInterval(async () => {
         try {
           const response = await axiosInstance.get<TransactionCheckResponse>('/transactions/check', {
@@ -380,11 +414,8 @@ const BookingPage = () => {
               bookingId,
             },
           });
-          console.log('Transaction check response:', response.data);
-
           if (response.data.message === 'Transaction success') {
             const detailedResponse = await axiosInstance.get<DetailedBookingResponse>(`/bookings/${bookingId}`);
-            console.log('Detailed booking response:', detailedResponse.data);
             setDetailedBooking(detailedResponse.data);
             setSuccess('Thanh toán thành công! Xem chi tiết đặt lịch.');
             setQrCodeUrl(null);
@@ -395,7 +426,7 @@ const BookingPage = () => {
           console.error('Transaction check error:', err);
           setError('Có lỗi khi kiểm tra trạng thái thanh toán. Vui lòng thử lại.');
         }
-      }, 5000); // Check every 5 seconds
+      }, 5000);
 
       timeout = setTimeout(() => {
         clearInterval(interval);
@@ -403,10 +434,9 @@ const BookingPage = () => {
           setError('Hết thời gian thanh toán. Vui lòng thử lại.');
           setQrCodeUrl(null);
         }
-      }, 300000); // 5-minute timeout
+      }, 300000);
 
       return () => {
-        console.log('Cleaning up QR code polling');
         clearInterval(interval);
         clearTimeout(timeout);
       };
@@ -430,10 +460,7 @@ const BookingPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {/* Header */}
       <Header />
-
-      {/* Main Content */}
       <main className="flex-1 px-4 py-12">
         <div className="container mx-auto max-w-3xl">
           <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center drop-shadow-md">
@@ -478,7 +505,15 @@ const BookingPage = () => {
 
           {/* Pet Selection */}
           <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Chọn Thú Cưng</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-semibold text-gray-800">Chọn Thú Cưng</h3>
+              <button
+                onClick={() => setShowAddPetForm(true)}
+                className="bg-gradient-to-r from-green-400 to-teal-400 text-white py-2 px-4 rounded-lg font-semibold shadow-md hover:from-green-500 hover:to-teal-500 transition-all duration-300"
+              >
+                + Thêm Pet
+              </button>
+            </div>
             {loading && <p className="text-gray-500 text-center">Đang tải...</p>}
             {error && <p className="text-red-500 text-center mb-4">{error}</p>}
             {pets.length > 0 ? (
@@ -508,7 +543,7 @@ const BookingPage = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center">Bạn chưa có thú cưng nào.</p>
+              <p className="text-gray-500 text-center">Bạn chưa có thú cưng nào. Hãy thêm một thú cưng mới!</p>
             )}
           </div>
 
@@ -555,7 +590,7 @@ const BookingPage = () => {
           </div>
 
           {/* Submit Button */}
-          {!qrCodeUrl && !detailedBooking && !showWalletPopup && !showRechargePopup && (
+          {!qrCodeUrl && !detailedBooking && !showWalletPopup && !showRechargePopup && !showAddPetForm && (
             <div className="text-center">
               {success && <p className="text-green-500 mb-4">{success}</p>}
               <button
@@ -571,6 +606,78 @@ const BookingPage = () => {
           )}
         </div>
       </main>
+
+      {/* Add Pet Popup */}
+      {showAddPetForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-md w-full relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-teal-400"></div>
+            <div className="absolute bottom-0 right-0 opacity-10">
+              <svg className="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm-4 6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm8 0c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm-4 6c1.66 0 3 1.34 3 3v1H9v-1c0-1.66 1.34-3 3-3z" />
+              </svg>
+            </div>
+            <button
+              onClick={() => setShowAddPetForm(false)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+            >
+              <FaTimes size={20} />
+            </button>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Thêm Thú Cưng Mới</h3>
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Tên thú cưng"
+                value={newPet.name}
+                onChange={(e) => setNewPet({ ...newPet, name: e.target.value })}
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="text"
+                placeholder="Loài (VD: Chó, Mèo)"
+                value={newPet.species}
+                onChange={(e) => setNewPet({ ...newPet, species: e.target.value })}
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="text"
+                placeholder="Giống (VD: Poodle, Mèo Ba Tư)"
+                value={newPet.breed}
+                onChange={(e) => setNewPet({ ...newPet, breed: e.target.value })}
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="number"
+                placeholder="Tuổi"
+                value={newPet.age}
+                onChange={(e) => setNewPet({ ...newPet, age: e.target.value })}
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="number"
+                placeholder="Cân nặng (kg)"
+                value={newPet.weight}
+                onChange={(e) => setNewPet({ ...newPet, weight: e.target.value })}
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setPetImage(e.target.files?.[0] || null)}
+                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <div className="mt-6 text-center">
+              <button
+                onClick={handleAddPet}
+                className="w-full bg-gradient-to-r from-green-400 to-teal-400 text-white py-3 rounded-lg font-semibold shadow-md hover:from-green-500 hover:to-teal-500 transition-all duration-300"
+              >
+                Thêm Thú Cưng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Wallet Payment Pop-up */}
       {showWalletPopup && userInfo && totalPrice && (
@@ -756,7 +863,6 @@ const BookingPage = () => {
         </div>
       )}
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-white py-6">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm">© 2025 VetTrack. All rights reserved.</p>
@@ -769,21 +875,6 @@ const BookingPage = () => {
       </footer>
     </div>
   );
-};
-
-// Format booking time
-const formatDateTime = (isoString: string) => {
-  return new Date(isoString).toLocaleString('vi-VN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-};
-
-// Format countdown timer
-const formatTimeLeft = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
 export default BookingPage;
