@@ -62,8 +62,8 @@ const Schedule: React.FC = () => {
         const response = await axiosInstance.get<ApiResponse>('/bookings/user');
         setBookings(response.data.result);
       } catch (err) {
-        setError('Failed to fetch bookings. Please try again.');
-        console.error('Error fetching bookings:', err);
+        setError('Không thể tải danh sách đặt lịch. Vui lòng thử lại.');
+        console.error('Lỗi khi tải danh sách đặt lịch:', err);
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ const Schedule: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return <div className="text-center py-8">Đang tải...</div>;
   }
 
   if (error) {
@@ -81,118 +81,118 @@ const Schedule: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Header />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-8 text-center text-purple-800">Lịch Hẹn Của Tôi</h1>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-6">
+            {bookings.slice(0, 2).map((booking) => {
+              const formattedDate = new Date(booking.bookingTime).toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+              });
+              const formattedTime = new Date(booking.bookingTime).toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+              });
 
-    <div className=" mx-100px p-4">
-      
-      <h1 className="text-2xl font-bold mb-4 text-center text-purple-800">My Bookings</h1>
-      <div className="grid gap-6">
-        {bookings.map((booking) => {
-          const formattedDate = new Date(booking.bookingTime).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-          });
-          const formattedTime = new Date(booking.bookingTime).toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
+              return (
+                <div
+                  key={booking.id}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1 w-full sm:w-[calc(50%-1.5rem)]"
+                >
+                  {/* Header Section */}
+                  <div className="bg-purple-100 text-center py-4">
+                    <h2 className="text-xl font-bold text-purple-800">
+                      Lịch hẹn của bạn đã được xác nhận!
+                    </h2>
+                  </div>
 
-          return (
-            <div key={booking.id} className="bg-white rounded-lg shadow-lg overflow-hidden max-w-lg mx-auto">
-              {/* Header Section */}
-              <div className="bg-purple-100 text-center py-4">
-                <h2 className="text-xl font-bold text-purple-800">
-                  {booking.userName}, your booking has been confirmed!
-                </h2>
-              </div>
+                  {/* Main Content */}
+                  <div className="divide-y divide-gray-200">
+                    {/* Booking Amount Section */}
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Số Tiền Đặt Lịch</h3>
+                      <div className="flex justify-between text-sm text-gray-700">
+                        <span>Số Tiền Đơn Hàng</span>
+                        <span>${booking.totalPrice}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold mt-3">
+                        <span>Tổng Cộng</span>
+                        <span>${booking.totalPrice}</span>
+                      </div>
+                    </div>
 
-              {/* Booking Amount Section */}
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold mb-2">Booking Amounts</h3>
-                <div className="flex justify-between text-sm text-gray-700">
-                  <span>Order Amount</span>
-                  <span>${booking.totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-700">
-                  <span>Application Fee & Taxes</span>
-                  <span>$0.00</span>
-                </div>
-                <div className="flex justify-between font-semibold mt-2">
-                  <span>Total</span>
-                  <span>${booking.totalPrice.toFixed(2)}</span>
-                </div>
-              </div>
+                    {/* Booking Details Section */}
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Chi Tiết Đặt Lịch</h3>
+                      <div className="space-y-2 text-sm text-gray-700">
+                        <p>
+                          <span className="font-medium">Dịch Vụ:</span>{' '}
+                          {booking.serviceTypeResponse.name}
+                        </p>
+                        <p>
+                          <span className="font-medium">Cửa Hàng:</span> {booking.shopName}
+                        </p>
+                        <p>
+                          <span className="font-medium">Ngày & Giờ:</span> {formattedDate}{' '}
+                          {formattedTime}
+                        </p>
+                      </div>
+                    </div>
 
-              {/* Booking Details Section */}
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold mb-2">Booking Details</h3>
-                <div className="text-sm text-gray-700">
-                  <p>
-                    <span className="font-medium">Service:</span> {booking.serviceTypeResponse.name}
-                  </p>
-                  <p>
-                    <span className="font-medium">Shop:</span> {booking.shopName}
-                  </p>
-                  <p>
-                    <span className="font-medium">Date & Time:</span> {formattedDate} {formattedTime}
-                  </p>
-                </div>
-              </div>
+                    {/* Pet Information Section */}
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold mb-4">Thông Tin Thú Cưng</h3>
+                      <div className="flex items-center">
+                        <img
+                          src={booking.pet.avtUrl}
+                          alt={booking.pet.name}
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                        <div className="ml-4 text-sm text-gray-700">
+                          <p className="mb-1">
+                            <span className="font-medium">Tên Thú Cưng:</span> {booking.pet.name}
+                          </p>
+                          <p>
+                            <span className="font-medium">Loài & Giống:</span>{' '}
+                            {booking.pet.species} ({booking.pet.breed})
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-              {/* Pet Information Section */}
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold mb-2">Pet Information</h3>
-                <div className="flex items-center">
-                  <img
-                    src={booking.pet.avtUrl}
-                    alt={booking.pet.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div className="ml-3 text-sm text-gray-700">
-                    <p>
-                      <span className="font-medium">Pet Name:</span> {booking.pet.name}
-                    </p>
-                    <p>
-                      <span className="font-medium">Species & Breed:</span> {booking.pet.species} (
-                      {booking.pet.breed})
-                    </p>
+                    {/* Status Section */}
+                    <div className="p-6">
+                      <div
+                        className={`w-full py-3 rounded-lg text-center font-semibold ${
+                          booking.status === 'SUCCESS'
+                            ? 'bg-green-100 text-green-800'
+                            : booking.status === 'PAID'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : booking.status === 'CANCELLED'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {booking.status === 'SUCCESS'
+                          ? 'THÀNH CÔNG'
+                          : booking.status === 'PAID'
+                          ? 'ĐÃ THANH TOÁN' 
+                          : booking.status === 'CANCELLED'
+                          ? 'ĐÃ HỦY'
+                          : booking.status}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Date and Booking ID Section */}
-              <div className="flex justify-center p-4">
-                <div className="bg-gray-100 rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-gray-800">
-                    {new Date(booking.bookingTime).getDate()}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {new Date(booking.bookingTime).toLocaleString('default', { month: 'short' })}-
-                    {new Date(booking.bookingTime).getFullYear()}
-                  </p>
-                  <p className="text-xs font-semibold text-gray-800 mt-2">
-                    Booking ID: {booking.id.slice(0, 8)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Print Button */}
-              <div className="p-4">
-                <button className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
-                  Print Booking
-                </button>
-              </div>
-
-              {/* Promotional Banner */}
-              
-              
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
     </div>
   );
 };
