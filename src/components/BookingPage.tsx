@@ -116,6 +116,7 @@ const BookingPage = () => {
   const [rechargeAmount, setRechargeAmount] = useState<number | null>(null);
   const [rechargeQrUrl, setRechargeQrUrl] = useState<string | null>(null);
   const [rechargeDes, setRechargeDes] = useState<string | null>(null);
+  const [serviceType, setServiceType] = useState<any>(null); // Add state for serviceType
 
   const token = localStorage.getItem('token');
   const axiosInstance = axios.create({
@@ -125,6 +126,24 @@ const BookingPage = () => {
       'ngrok-skip-browser-warning': 'true',
     },
   });
+
+  // Fetch service type
+  useEffect(() => {
+    const fetchServiceType = async () => {
+      try {
+        const response = await axiosInstance.get(`/service-types/${serviceTypeId}`);
+        console.log('Service type response:', response.data);
+        setServiceType(response.data.result);
+      } catch (err) {
+        setError('Không thể tải thông tin dịch vụ. Vui lòng thử lại.');
+        console.error('Fetch service type error:', err);
+      }
+    };
+
+    if (serviceTypeId) {
+      fetchServiceType();
+    }
+  }, [serviceTypeId]);
 
   // Fetch pets
   useEffect(() => {
@@ -171,13 +190,35 @@ const BookingPage = () => {
     return 'THANH TOAN HOA DON PET SERVICE' + ' ' + Math.random().toString(36).substr(2, 9).toUpperCase();
   };
 
+  // Function to calculate total price based on pet weight
+  const calculateTotalPrice = () => {
+    if (!serviceType || !selectedPetId) return 0; // Return 0 if serviceType or selectedPetId is not available
+
+    const selectedPet = pets.find((pet) => pet.id === selectedPetId);
+    if (!selectedPet) return serviceType.price; // If no pet is selected, return the original price
+
+    const weight = selectedPet.weight;
+    const basePrice = serviceType.price;
+
+    if (weight < 5) {
+      return basePrice; // Original price
+    } else if (weight >= 5 && weight < 10) {
+      return basePrice * 1.5; // Price * 1.5
+    } else {
+      return basePrice * 2; // Price * 2
+    }
+  };
+
+  // Calculate total price whenever selectedPetId or serviceType changes
+  const totalPriceBasedOnWeight = calculateTotalPrice();
+
   // Handle booking submission
   const handleBooking = async () => {
     if (!selectedPetId || !bookingTime) {
       setError('Vui lòng chọn thú cưng và thời gian đặt lịch.');
       return;
     }
-
+    console.log('serviceTypeId:', serviceTypeId); // Log serviceTypeId
     const bookingData: BookingRequest = {
       serviceTypeId,
       shopId,
@@ -398,6 +439,42 @@ const BookingPage = () => {
           <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center drop-shadow-md">
             Đặt Lịch Chăm Sóc Thú Cưng
           </h2>
+
+          {/* Service Type Section */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Dịch Vụ Được Chọn</h3>
+            {loading && <p className="text-gray-500 text-center">Đang tải thông tin dịch vụ...</p>}
+            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+            {serviceType ? (
+              <div className="flex items-center space-x-6">
+                <img
+                  src={serviceType.avtUrl || 'https://via.placeholder.com/80'}
+                  alt={serviceType.name}
+                  className="w-20 h-20 rounded-full object-cover shadow-md"
+                />
+                <div className="flex-1">
+                  <p className="text-lg font-semibold text-gray-800">{serviceType.name}</p>
+                  <p className="text-gray-600">{serviceType.description}</p>
+                  <p className="text-gray-600">
+                    Giá gốc: {serviceType.price.toLocaleString()} VND
+                  </p>
+                  <p className="text-gray-600">
+                    Giá Ước tính: {totalPriceBasedOnWeight.toLocaleString()} VND{' '}
+                    {selectedPetId && pets.length > 0 && (
+                      <span className="text-sm text-gray-500">
+                        (Dựa trên cân nặng của thú cưng: {pets.find((pet) => pet.id === selectedPetId)?.weight}kg)
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-gray-600">
+                    Thời gian: {serviceType.duration} phút
+                  </p>
+                </div>
+              </div>
+            ) : (
+              !loading && <p className="text-gray-500 text-center">Không có thông tin dịch vụ.</p>
+            )}
+          </div>
 
           {/* Pet Selection */}
           <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
@@ -644,7 +721,7 @@ const BookingPage = () => {
               />
               <div className="flex-1">
                 <p className="text-lg font-semibold text-gray-800">
-                  Mã đặt lịch: {detailedBooking.result.id} {/* Display booking ID */}
+                  Mã đặt lịch: {detailedBooking.result.id}
                 </p>
                 <p className="text-lg font-semibold text-gray-800">
                   Dịch vụ: {detailedBooking.result.serviceTypeResponse.name}
