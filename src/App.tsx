@@ -7,11 +7,13 @@ import Profile from './components/Profile';
 import HomePage from './components/HomePage';
 import OwnerPage from './components/OwnerPage';
 import ServicePage from './components/ServicePage';
+import BookingPage from './components/BookingPage';
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginForm />} />
+        <Route path="/booking" element={<BookingPage />} />
         <Route path="/services" element={<ServicePage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/admin" element={<AdminPage />} />

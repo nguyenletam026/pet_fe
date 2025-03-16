@@ -10,7 +10,7 @@ interface ServiceType {
   price: number;
   duration: number;
   description: string;
-  avtUrl?: string | null; // Thêm avtUrl vào interface
+  avtUrl?: string | null;
 }
 
 interface Service {
@@ -108,7 +108,7 @@ const ServicePage = () => {
       <main className="flex-1 px-4 py-8">
         <div className="container mx-auto">
           <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center">Dịch Vụ Chăm Sóc Thú Cưng Tại Nhà</h2>
-          
+
           {/* Service Types Display */}
           <div className="mb-8">
             <h3 className="text-2xl font-semibold text-gray-800 mb-4 text-center">Các Loại Dịch Vụ</h3>
@@ -122,7 +122,7 @@ const ServicePage = () => {
                   onClick={() => setSelectedServiceTypeId(type.id)}
                 >
                   <img
-                    src={type.avtUrl || 'https://via.placeholder.com/80'} // Ảnh mặc định nếu avtUrl là null
+                    src={type.avtUrl || 'https://via.placeholder.com/80'}
                     alt={type.name}
                     className="w-20 h-20 rounded-full object-cover mb-2"
                   />
@@ -204,7 +204,13 @@ const ServicePage = () => {
                         )}
                       </div>
                       <Link
-                        to={`/shop/${shop.id}`}
+                        to="/booking"
+                        state={{
+                          serviceTypeId: selectedServiceTypeId,
+                          shopId: shop.id,
+                          serviceType: serviceTypes.find((type) => type.id === selectedServiceTypeId), // Pass full ServiceType
+                          shop: shop, // Pass full Shop
+                        }}
                         className="w-full bg-blue-600 text-white py-2 rounded-lg text-center hover:bg-blue-700 transition-colors block"
                       >
                         Đặt lịch ngay
