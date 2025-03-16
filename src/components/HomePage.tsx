@@ -106,7 +106,7 @@ const HomePage = () => {
       <Header userData={userData} token={token} />
 
       {/* Hero Section with Carousel */}
-      <div className="relative w-full h-[600px] py-32 mt-0"> {/* Added mt-20 */}
+      <div className="relative w-full h-[600px] py-32 mt-"> {/* Added mt-20 */}
         {/* Carousel Images */}
         <div className="absolute inset-0 w-full h-full">
           <img

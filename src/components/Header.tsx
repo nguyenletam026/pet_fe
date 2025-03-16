@@ -37,7 +37,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-cyan-50 to-cyan-100 text-black shadow-lg">
+    <header className="bg-gradient-to-r from-white-50 to-cyan-100 text-black shadow-lg">
       {/* Top Header */}
       <div className="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
         {/* Logo & Search */}
@@ -62,9 +62,7 @@ const Header = () => {
 
         {/* Right Section */}
         <div className="flex items-center space-x-8">
-          <span className="flex items-center text-sm">
-            <FaPhone className="mr-2" /> Hotline: <strong className="ml-1">0867 7891</strong>
-          </span>
+          
           <Link
             to="/wishlist"
             className="flex items-center hover:text-blue-200 transition-colors duration-300"
@@ -77,6 +75,7 @@ const Header = () => {
           >
             <FaCalendarAlt className="mr-2" /> Xem Lịch
           </Link>
+          
           {token && userData ? (
             <div className="relative group">
               <Link
@@ -102,6 +101,12 @@ const Header = () => {
                   className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
                 >
                   <FaCalendarAlt className="mr-2 text-gray-600" /> My Schedule
+                </Link>
+                <Link
+                  to="/schedule"
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
+                >
+                   My Schedule
                 </Link>
                 <button
                   onClick={() => {
