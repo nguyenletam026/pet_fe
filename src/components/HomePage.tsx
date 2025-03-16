@@ -102,16 +102,6 @@ const HomePage = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-yellow-50">
-      {/* Header */}
-      <Header userData={userData} token={token} />  
-      {/* Banner */}
-      <div className="relative bg-gradient-to-r from-blue-500 to-blue-700 text-white py-12">
-        <div className="container mx-auto text-center px-4">
-          <h1 className="text-5xl font-bold mb-4">VETTRACK - NƠI THÚ CƯNG ĐƯỢC YÊU THƯƠNG</h1>
-          <p className="text-xl mb-6">Dịch vụ và sản phẩm chuẩn chất lượng cho thú cưng của bạn!</p>
-=======
     <div className="min-h-screen bg-white">
       <Header userData={userData} token={token} />
 
@@ -119,7 +109,6 @@ const HomePage = () => {
       <div className="relative w-full h-[600px] py-32 mt-"> {/* Added mt-20 */}
         {/* Carousel Images */}
         <div className="absolute inset-0 w-full h-full">
->>>>>>> 1051289f74ff9c4fca01abfc10fb0c50a60c1b86
           <img
             src={slides[currentSlide].url}
             alt={`Slide ${currentSlide + 1}`}
@@ -137,9 +126,12 @@ const HomePage = () => {
             <p className="text-gray-600 mb-6 transition-all duration-500">
               {slides[currentSlide].subtitle}
             </p>
-            <button className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors">
-              Shop Now
-            </button>
+            <Link
+  to="/services"
+  className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 transition-colors inline-block"
+>
+  Shop Now
+</Link>
           </div>
         </div>
 

@@ -134,7 +134,7 @@ const Header = () => {
             <FaShoppingCart className="text-lg" size={18} />
             <span className="ml-2 text-sm font-medium">Giỏ Hàng</span>
             <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center shadow-md">
-              3
+              
             </span>
           </Link>
         </div>
