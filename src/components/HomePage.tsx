@@ -257,32 +257,75 @@ const HomePage = () => {
       </div>
 
       {/* CTA Sections */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-orange-400 rounded-2xl p-8 text-white flex items-center">
-            <div>
-              <h3 className="text-2xl font-bold mb-2">Đồ Ăn Cho Thú Cưng Của Bạn</h3>
-              <Link
-                to="/products?type=FOOD"
-                className="bg-white text-orange-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors inline-block"
-              >
-                Mua Ngay !!!
-              </Link>
-            </div>
-          </div>
-          <div className="bg-pink-400 rounded-2xl p-8 text-white flex items-center">
-            <div>
-              <h3 className="text-2xl font-bold mb-2">Phụ Kiện Cho Thú Cưng Của Bạn</h3>
-              <Link
-                to="/products?type=ACCESSORY"
-                className="bg-white text-pink-500 px-6 py-2 rounded-full mt-4 hover:bg-gray-100 transition-colors inline-block"
-              >
-                Mua Ngay !!!
-              </Link>
-            </div>
-          </div>
-        </div>
+      <div className="container mx-auto px-4 py-12">
+  <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Danh Mục <span className="text-blue-500">Sản Phẩm</span></h2>
+  
+  <div className="grid md:grid-cols-2 gap-8">
+    {/* Pet Food Card */}
+    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
+      <div className="relative h-64 overflow-hidden">
+        <img 
+          src="https://nativespeaker.vn/uploaded/page_1600_1712215630_1713753920.jpg?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+          alt="Pet Food" 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
       </div>
+      <div className="bg-orange-500 p-6">
+        <h3 className="text-2xl font-bold text-white mb-2">Đồ Ăn Cho Thú Cưng</h3>
+        <p className="text-white text-sm mb-4">
+          Các sản phẩm dinh dưỡng chất lượng cao, đảm bảo sức khỏe tối ưu cho thú cưng của bạn
+        </p>
+        <Link
+          to="/products?type=FOOD"
+          className="inline-flex items-center bg-white text-orange-600 px-6 py-2 rounded-full font-medium hover:bg-orange-50 transition-colors"
+        >
+          Mua Ngay
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+
+    {/* Pet Accessories Card */}
+    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
+      <div className="relative h-64 overflow-hidden">
+        <img 
+          src="https://images.unsplash.com/photo-1560743641-3914f2c45636?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+          alt="Pet Accessories" 
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+      <div className="bg-pink-500 p-6">
+        <h3 className="text-2xl font-bold text-white mb-2">Phụ Kiện Cho Thú Cưng</h3>
+        <p className="text-white text-sm mb-4">
+          Đa dạng phụ kiện thời trang, tiện ích giúp thú cưng của bạn luôn thoải mái và đáng yêu
+        </p>
+        <Link
+          to="/products?type=ACCESSORY"
+          className="inline-flex items-center bg-white text-pink-600 px-6 py-2 rounded-full font-medium hover:bg-pink-50 transition-colors"
+        >
+          Mua Ngay
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </Link>
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-12 text-center">
+    <Link 
+      to="/products" 
+      className="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-3 rounded-lg transition-colors"
+    >
+      Xem Tất Cả Sản Phẩm
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+      </svg>
+    </Link>
+  </div>
+</div>
 
       {/* Shops List */}
       <div className="container mx-auto px-4 py-16">

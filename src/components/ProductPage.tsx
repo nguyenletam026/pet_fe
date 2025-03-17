@@ -5,7 +5,7 @@ import { useLocation, Link } from "react-router-dom";
 import Header from "./Header";
 import { motion } from "framer-motion";
 import { ShoppingCartOutlined, HeartOutlined, HeartFilled, StarFilled } from "@ant-design/icons";
-
+import { publicAxios } from '../../src/untils/axiosConfig';
 interface Product {
   id: number;
   name: string;
@@ -64,7 +64,8 @@ const ProductPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get("/products");
+      const response = await publicAxios.get('/products');
+      console.log("Fetch products response:", response);
       const productsData = response.data.result || [];
       setProducts(productsData);
     } catch (err) {
@@ -273,8 +274,9 @@ const ProductPage = () => {
                   </div>
                   
                   <h3 className="text-xl font-bold text-gray-800 mb-2 truncate">{product.name}</h3>
-                  <p className="text-2xl font-bold text-orange-600 mb-4">${product.price.toFixed(2)}</p>
-                  
+                  <p className="text-2xl font-bold text-orange-600 mb-4">
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
+                            </p>
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center  rounded-lg overflow-hidden">
                       <button 

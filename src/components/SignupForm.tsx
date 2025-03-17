@@ -309,7 +309,7 @@ const SignupForm = () => {
 
       {/* Phần phải - Hình ảnh minh họa */}
       <div className="hidden md:flex w-1/2 bg-gray-100 p-6 rounded-lg">
-        <img src={loginImage} alt="PetStore Illustration" className="w-full h-full object-cover rounded-lg" />
+        <img src="https://marketplace.canva.com/EAFJ1a_Jkq4/1/0/1600w/canva-brown-black-simple-modern-pet-shop-logo-3HtOB_YFCeQ.jpg" alt="PetStore Illustration" className="w-full h-full object-cover rounded-lg" />
       </div>
     </div>
   );

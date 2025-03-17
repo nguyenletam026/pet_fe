@@ -3,14 +3,15 @@ import axios from "axios";
 import { API_URL } from "../../Base_Api";
 import { 
   Button, Modal, Input, Spin, Alert, Card, List, Image, Typography, Row, Col,
-  Space, Divider, Tag 
+  Space, Divider, Tag, InputNumber, Popconfirm, Tooltip
 } from "antd";
 import { 
-  ShoppingCartOutlined, DollarOutlined, LoadingOutlined,
-  QrcodeOutlined, WalletOutlined, CheckCircleOutlined 
+  ShoppingCartOutlined, DollarOutlined, LoadingOutlined, DeleteOutlined,
+  QrcodeOutlined, WalletOutlined, CheckCircleOutlined, MinusCircleOutlined,
+  PlusCircleOutlined, EditOutlined, HistoryOutlined
 } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import Header from "./Header";
-import { div } from "framer-motion/client";
 
 interface CartItem {
   productId: number;
@@ -93,6 +94,8 @@ const CartPage: React.FC = () => {
   const [orderSuccessful, setOrderSuccessful] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<number | null>(null); // State to store orderId from createOrder
+  const [editingItem, setEditingItem] = useState<number | null>(null); // Track which item is being edited
+  const [editQuantity, setEditQuantity] = useState<number>(1);
 
   const { Title, Text } = Typography;
 
@@ -145,6 +148,51 @@ const CartPage: React.FC = () => {
       setError("Failed to load cart items");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to update the quantity of a cart item
+  const updateQuantity = (productId: number, newQuantity: number) => {
+    if (newQuantity < 1) return; // Don't allow quantities less than 1
+
+    const updatedItems = cartItems.map(item => {
+      if (item.productId === productId) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+
+    // Update the state and localStorage
+    setCartItems(updatedItems);
+    localStorage.setItem("cart", JSON.stringify(updatedItems.map(({ product, ...item }) => item)));
+    
+    // Exit editing mode
+    setEditingItem(null);
+  };
+
+  // Function to remove an item from cart
+  const removeItem = (productId: number) => {
+    const updatedItems = cartItems.filter(item => item.productId !== productId);
+    setCartItems(updatedItems);
+    
+    // If cart is empty, clear it
+    if (updatedItems.length === 0) {
+      localStorage.removeItem("cart");
+    } else {
+      localStorage.setItem("cart", JSON.stringify(updatedItems.map(({ product, ...item }) => item)));
+    }
+  };
+
+  // Function to start editing an item
+  const startEditing = (productId: number, currentQuantity: number) => {
+    setEditingItem(productId);
+    setEditQuantity(currentQuantity);
+  };
+
+  // Function to handle quantity input change
+  const handleQuantityChange = (value: number | null) => {
+    if (value !== null) {
+      setEditQuantity(value);
     }
   };
 
@@ -360,14 +408,26 @@ const CartPage: React.FC = () => {
             <Text style={{ fontSize: "16px", display: "block", marginBottom: "30px" }}>
               Đơn hàng của bạn đã được thanh toán và đang được xử lý.
             </Text>
-            <Button 
-              type="primary" 
-              size="large"
-              onClick={() => (window.location.href = "/home")}
-              style={{ padding: "0 40px", height: "48px", fontSize: "16px" }}
-            >
-              Tiếp tục Mua Sắm
-            </Button>
+            <Space size="middle">
+              <Button 
+                type="primary" 
+                size="large"
+                onClick={() => (window.location.href = "/home")}
+                style={{ padding: "0 40px", height: "48px", fontSize: "16px" }}
+              >
+                Tiếp tục Mua Sắm
+              </Button>
+              <Link to="/order-history">
+                <Button 
+                  type="default" 
+                  size="large"
+                  icon={<HistoryOutlined />}
+                  style={{ height: "48px", fontSize: "16px" }}
+                >
+                  Xem Lịch Sử Đơn Hàng
+                </Button>
+              </Link>
+            </Space>
           </div>
         </Card>
       </div>
@@ -376,222 +436,301 @@ const CartPage: React.FC = () => {
 
   if (error) {
     return (
-        <div>
+      <div>
         <Header />
-      <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-        <Alert message="Error" description={error} type="error" showIcon style={{ marginBottom: "20px" }} />
-        <div style={{ textAlign: "center" }}>
-          <Button onClick={() => setError(null)} size="large">Try Again</Button>
+        <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+          <Alert message="Error" description={error} type="error" showIcon style={{ marginBottom: "20px" }} />
+          <div style={{ textAlign: "center" }}>
+            <Button onClick={() => setError(null)} size="large">Try Again</Button>
+          </div>
         </div>
       </div>
-        </div>
     );
   }
 
   return (
     <div>
-        <Header />
-    <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
-      
-      <Card style={{ borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.09)" }}>
-        <Title level={2} style={{ marginBottom: "24px", display: "flex", alignItems: "center", color: "#1890ff" }}>
-          <ShoppingCartOutlined style={{ marginRight: "12px" }} /> Giỏ Hàng
-        </Title>
-
-        {cartItems.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0" }}>
-            <ShoppingCartOutlined style={{ fontSize: "64px", color: "#ccc" }} />
-            <p style={{ marginTop: "20px", fontSize: "16px" }}>Giỏ hàng của bạn đang trống</p>
-            <Button 
-              type="primary" 
-              href="/products?type=FOOD" 
-              size="large"
-              style={{ marginTop: "20px", padding: "0 30px", height: "40px" }}
-            >
-              Tiếp Tục Mua Sắm
-            </Button>
-          </div>
-        ) : (
-          <>
-            <List
-              itemLayout="horizontal"
-              dataSource={cartItems}
-              renderItem={(item) => (
-                <List.Item style={{ padding: "16px 0", borderBottom: "1px solid #f0f0f0" }}>
-                  <List.Item.Meta
-                    avatar={
-                      <Image 
-                        width={100} 
-                        height={100}
-                        style={{ objectFit: "cover", borderRadius: "4px" }}
-                        src={item.product?.image || "https://placeholder.com/80"} 
-                      />
-                    }
-                    title={
-                      <Text style={{ fontSize: "16px", fontWeight: "500" }}>
-                        {item.product?.name || `Product #${item.productId}`}
-                      </Text>
-                    }
-                    description={
-                      <Tag color="blue">
-                        {item.product?.price?.toLocaleString() || 0} VNĐ
-                      </Tag>
-                    }
-                  />
-                  <div>
-                    <Text style={{ marginBottom: "8px", display: "block" }}>
-                      Số Lượng: <Text strong>{item.quantity}</Text>
-                    </Text>
-                    <Text strong style={{ fontSize: "16px", color: "#ff4d4f" }}>
-                      {((item.product?.price || 0) * item.quantity).toLocaleString()} VNĐ
-                    </Text>
-                  </div>
-                </List.Item>
-              )}
-            />
-
-            <Divider />
-
-            <Row justify="end" style={{ marginTop: "20px" }}>
-              <Col>
-                <Title level={3} style={{ color: "#ff4d4f", marginBottom: "16px" }}>
-                  Tổng: {calculateTotal().toLocaleString()} VNĐ
-                </Title>
-                <Button 
-                  type="primary" 
-                  size="large"
-                  icon={<DollarOutlined />}
-                  onClick={createOrder} 
-                  loading={loading}
-                  style={{ height: "48px", padding: "0 30px", fontSize: "16px" }}
-                >
-                  Thanh Toán
-                </Button>
-              </Col>
-            </Row>
-          </>
-        )}
-      </Card>
-
-      <Modal
-        title={
-          <div style={{ display: "flex", alignItems: "center", fontSize: "20px", color: "#1890ff" }}>
-            <WalletOutlined style={{ marginRight: "10px" }} /> Yêu cầu nạp tiền
-          </div>
-        }
-        open={paymentModalVisible}
-        onCancel={() => setPaymentModalVisible(false)}
-        width={700}
-        footer={null}
-        centered
-      >
-        <div style={{ padding: "10px 0" }}>
-          <Alert
-            message={
-              <div style={{ textAlign: "center", padding: "10px" }}>
-                <div style={{ fontSize: "16px", marginBottom: "8px" }}>
-                  Số dư ví của bạn: <Text strong style={{ fontSize: "18px" }}>{userBalance.toLocaleString()} VNĐ</Text>
-                </div>
-                <div style={{ fontSize: "16px" }}>
-                  Số tiền cần thanh toán: <Text type="danger" strong style={{ fontSize: "18px" }}>{orderDetail?.totalPrice.toLocaleString()} VNĐ</Text>
-                </div>
-              </div>
-            }
-            type="warning"
-            style={{ marginBottom: "24px" }}
-          />
-
-          <div style={{ marginBottom: "24px", textAlign: "center" }}>
-            <Text style={{ display: "block", marginBottom: "12px", fontSize: "16px" }}>
-              Chọn số tiền nạp nhanh:
-            </Text>
-            <Space size="middle">
-              {presetAmounts.map(amount => (
-                <Button 
-                  key={amount} 
-                  type={paymentAmount === amount.toString() ? "primary" : "default"}
-                  size="large"
-                  onClick={() => selectPresetAmount(amount)}
-                  style={{ minWidth: "120px", height: "44px" }}
-                >
-                  {amount.toLocaleString()} VNĐ
-                </Button>
-              ))}
-            </Space>
+      <Header />
+      <div style={{ padding: "20px", maxWidth: "1000px", margin: "0 auto" }}>
+        <Card style={{ borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.09)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <Title level={2} style={{ margin: 0, display: "flex", alignItems: "center", color: "#1890ff" }}>
+              <ShoppingCartOutlined style={{ marginRight: "12px" }} /> Giỏ Hàng
+            </Title>
+            <Link to="/order-history">
+              <Button icon={<HistoryOutlined />} type="link" size="large">
+                Lịch sử đơn hàng
+              </Button>
+            </Link>
           </div>
 
-          <Divider plain>Hoặc</Divider>
-
-          <div style={{ display: "flex", marginBottom: "24px" }}>
-            <Input
-              size="large"
-              placeholder="Nhập số tiền khác"
-              value={paymentAmount}
-              onChange={handlePaymentAmountChange}
-              type="number"
-              min="0"
-              suffix="VNĐ"
-              style={{ marginRight: "12px", fontSize: "16px" }}
-            />
-            <Button 
-              type="primary" 
-              size="large"
-              icon={<QrcodeOutlined />}
-              onClick={generateQrCode}
-              disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
-            >
-              Tạo mã QR
-            </Button>
-          </div>
-
-          {qrCode && (
-            <div style={{ marginTop: "20px", textAlign: "center" }}>
-              <Card 
-                style={{ 
-                  backgroundColor: "#f9f9f9", 
-                  borderRadius: "8px",
-                  padding: "10px"
-                }}
-              >
-                <div style={{ padding: "15px", backgroundColor: "white", display: "inline-block", borderRadius: "8px" }}>
-                  <img 
-                    src={qrCode} 
-                    alt="Payment QR Code" 
-                    style={{ maxWidth: "100%", maxHeight: "300px" }} 
-                  />
-                </div>
-                <div style={{ margin: "20px 0 10px" }}>
-                  <Text type="secondary" style={{ display: "block", marginBottom: "10px" }}>
-                    Quét mã QR để chuyển <Text strong>{parseInt(paymentAmount).toLocaleString()} VNĐ</Text>
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: "12px", display: "block" }}>
-                    Mã giao dịch: <Text code>{transactionCode}</Text>
-                  </Text>
-                </div>
-              </Card>
-
-              <Button
-                type="primary"
+          {cartItems.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <ShoppingCartOutlined style={{ fontSize: "64px", color: "#ccc" }} />
+              <p style={{ marginTop: "20px", fontSize: "16px" }}>Giỏ hàng của bạn đang trống</p>
+              <Button 
+                type="primary" 
+                href="/products?type=FOOD" 
                 size="large"
-                icon={<CheckCircleOutlined />}
-                onClick={checkTransaction}
-                loading={checkingPayment}
-                style={{ marginTop: "24px", height: "48px", width: "100%" }}
+                style={{ marginTop: "20px", padding: "0 30px", height: "40px" }}
               >
-                {checkingPayment ? "Đang kiểm tra thanh toán..." : "Xác nhận đã thanh toán"}
+                Tiếp Tục Mua Sắm
               </Button>
             </div>
-          )}
+          ) : (
+            <>
+              <List
+                itemLayout="horizontal"
+                dataSource={cartItems}
+                renderItem={(item) => (
+                  <List.Item 
+                    style={{ padding: "16px 0", borderBottom: "1px solid #f0f0f0" }}
+                    actions={[
+                      <div key="actions" style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        {editingItem === item.productId ? (
+                          <>
+                            <InputNumber 
+                              min={1}
+                              value={editQuantity}
+                              onChange={handleQuantityChange}
+                              style={{ width: "70px" }}
+                            />
+                            <Button
+                              type="primary"
+                              size="small"
+                              onClick={() => updateQuantity(item.productId, editQuantity)}
+                            >
+                              Lưu
+                            </Button>
+                            <Button
+                              size="small"
+                              onClick={() => setEditingItem(null)}
+                            >
+                              Hủy
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Tooltip title="Chỉnh sửa số lượng">
+                              <Button
+                                icon={<EditOutlined />}
+                                type="text"
+                                onClick={() => startEditing(item.productId, item.quantity)}
+                              />
+                            </Tooltip>
+                            <Popconfirm
+                              title="Bạn có chắc chắn muốn xóa sản phẩm này?"
+                              onConfirm={() => removeItem(item.productId)}
+                              okText="Xóa"
+                              cancelText="Hủy"
+                            >
+                              <Tooltip title="Xóa khỏi giỏ hàng">
+                                <Button
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                  type="text"
+                                />
+                              </Tooltip>
+                            </Popconfirm>
+                          </>
+                        )}
+                      </div>
+                    ]}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Image 
+                          width={100} 
+                          height={100}
+                          style={{ objectFit: "cover", borderRadius: "4px" }}
+                          src={item.product?.image || "https://placeholder.com/80"} 
+                        />
+                      }
+                      title={
+                        <Text style={{ fontSize: "16px", fontWeight: "500" }}>
+                          {item.product?.name || `Product #${item.productId}`}
+                        </Text>
+                      }
+                      description={
+                        <Tag color="blue">
+                          {item.product?.price?.toLocaleString() || 0} VNĐ
+                        </Tag>
+                      }
+                    />
+                    <div>
+                      {editingItem !== item.productId && (
+                        <div style={{ marginBottom: "8px" }}>
+                          <Text style={{ display: "block" }}>
+                            Số Lượng: <Text strong>{item.quantity}</Text>
+                          </Text>
+                          <div style={{ display: "flex", alignItems: "center" }}>
+                            <Button
+                              size="small"
+                              icon={<MinusCircleOutlined />}
+                              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                              disabled={item.quantity <= 1}
+                              style={{ marginRight: "8px" }}
+                            />
+                            <Text>{item.quantity}</Text>
+                            <Button
+                              size="small"
+                              icon={<PlusCircleOutlined />}
+                              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                              style={{ marginLeft: "8px" }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <Text strong style={{ fontSize: "16px", color: "#ff4d4f", display: "block", marginTop: "8px" }}>
+                        {((item.product?.price || 0) * item.quantity).toLocaleString()} VNĐ
+                      </Text>
+                    </div>
+                  </List.Item>
+                )}
+              />
 
-          {checkingPayment && (
-            <div style={{ marginTop: "20px", textAlign: "center" }}>
-              <Spin tip="Đang kiểm tra trạng thái thanh toán..." />
-              <p style={{ marginTop: "12px" }}>Vui lòng chờ trong khi hệ thống xác minh thanh toán của bạn...</p>
-            </div>
+              <Divider />
+
+              <Row justify="end" style={{ marginTop: "20px" }}>
+                <Col>
+                  <Title level={3} style={{ color: "#ff4d4f", marginBottom: "16px" }}>
+                    Tổng: {calculateTotal().toLocaleString()} VNĐ
+                  </Title>
+                  <Button 
+                    type="primary" 
+                    size="large"
+                    icon={<DollarOutlined />}
+                    onClick={createOrder} 
+                    loading={loading}
+                    style={{ height: "48px", padding: "0 30px", fontSize: "16px" }}
+                  >
+                    Thanh Toán
+                  </Button>
+                </Col>
+              </Row>
+            </>
           )}
-        </div>
-      </Modal>
-    </div>
+        </Card>
+
+        <Modal
+          title={
+            <div style={{ display: "flex", alignItems: "center", fontSize: "20px", color: "#1890ff" }}>
+              <WalletOutlined style={{ marginRight: "10px" }} /> Yêu cầu nạp tiền
+            </div>
+          }
+          open={paymentModalVisible}
+          onCancel={() => setPaymentModalVisible(false)}
+          width={700}
+          footer={null}
+          centered
+        >
+          <div style={{ padding: "10px 0" }}>
+            <Alert
+              message={
+                <div style={{ textAlign: "center", padding: "10px" }}>
+                  <div style={{ fontSize: "16px", marginBottom: "8px" }}>
+                    Số dư ví của bạn: <Text strong style={{ fontSize: "18px" }}>{userBalance.toLocaleString()} VNĐ</Text>
+                  </div>
+                  <div style={{ fontSize: "16px" }}>
+                    Số tiền cần thanh toán: <Text type="danger" strong style={{ fontSize: "18px" }}>{orderDetail?.totalPrice.toLocaleString()} VNĐ</Text>
+                  </div>
+                </div>
+              }
+              type="warning"
+              style={{ marginBottom: "24px" }}
+            />
+
+            <div style={{ marginBottom: "24px", textAlign: "center" }}>
+              <Text style={{ display: "block", marginBottom: "12px", fontSize: "16px" }}>
+                Chọn số tiền nạp nhanh:
+              </Text>
+              <Space size="middle">
+                {presetAmounts.map(amount => (
+                  <Button 
+                    key={amount} 
+                    type={paymentAmount === amount.toString() ? "primary" : "default"}
+                    size="large"
+                    onClick={() => selectPresetAmount(amount)}
+                    style={{ minWidth: "120px", height: "44px" }}
+                  >
+                    {amount.toLocaleString()} VNĐ
+                  </Button>
+                ))}
+              </Space>
+            </div>
+
+            <Divider plain>Hoặc</Divider>
+
+            <div style={{ display: "flex", marginBottom: "24px" }}>
+              <Input
+                size="large"
+                placeholder="Nhập số tiền khác"
+                value={paymentAmount}
+                onChange={handlePaymentAmountChange}
+                type="number"
+                min="0"
+                suffix="VNĐ"
+                style={{ marginRight: "12px", fontSize: "16px" }}
+              />
+              <Button 
+                type="primary" 
+                size="large"
+                icon={<QrcodeOutlined />}
+                onClick={generateQrCode}
+                disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
+              >
+                Tạo mã QR
+              </Button>
+            </div>
+
+            {qrCode && (
+              <div style={{ marginTop: "20px", textAlign: "center" }}>
+                <Card 
+                  style={{ 
+                    backgroundColor: "#f9f9f9", 
+                    borderRadius: "8px",
+                    padding: "10px"
+                  }}
+                >
+                  <div style={{ padding: "15px", backgroundColor: "white", display: "inline-block", borderRadius: "8px" }}>
+                    <img 
+                      src={qrCode} 
+                      alt="Payment QR Code" 
+                      style={{ maxWidth: "100%", maxHeight: "300px" }} 
+                    />
+                  </div>
+                  <div style={{ margin: "20px 0 10px" }}>
+                    <Text type="secondary" style={{ display: "block", marginBottom: "10px" }}>
+                      Quét mã QR để chuyển <Text strong>{parseInt(paymentAmount).toLocaleString()} VNĐ</Text>
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: "12px", display: "block" }}>
+                      Mã giao dịch: <Text code>{transactionCode}</Text>
+                    </Text>
+                  </div>
+                </Card>
+
+                <Button
+                  type="primary"
+                  size="large"
+                  icon={<CheckCircleOutlined />}
+                  onClick={checkTransaction}
+                  loading={checkingPayment}
+                  style={{ marginTop: "24px", height: "48px", width: "100%" }}
+                >
+                  {checkingPayment ? "Đang kiểm tra thanh toán..." : "Xác nhận đã thanh toán"}
+                </Button>
+              </div>
+            )}
+
+            {checkingPayment && (
+              <div style={{ marginTop: "20px", textAlign: "center" }}>
+                <Spin tip="Đang kiểm tra trạng thái thanh toán..." />
+                <p style={{ marginTop: "12px" }}>Vui lòng chờ trong khi hệ thống xác minh thanh toán của bạn...</p>
+              </div>
+            )}
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 };

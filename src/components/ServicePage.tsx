@@ -109,7 +109,7 @@ const ServicePage = () => {
         const serviceTypesData = response.data.result || [];
         setServiceTypes(serviceTypesData);
       } catch (err) {
-        setError('Không thể lấy danh sách loại dịch vụ.');
+        setError('Vui Lòng Đăng Nhập Để Xem Dịch Vụ.');
         console.error('Fetch service types error:', err);
       } finally {
         setLoading(false);
@@ -166,7 +166,7 @@ const ServicePage = () => {
             setFilteredShops(filtered);
           }
         } catch (err) {
-          setError('Không thể lấy danh sách shop.');
+          setError('Vui Lòng Đăng Nhập Để Xem Dịch Vụ');
           console.error('Fetch shops error:', err);
         } finally {
           setLoading(false);
