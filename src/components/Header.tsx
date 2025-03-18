@@ -100,7 +100,7 @@ const Header = () => {
                     to="/profile"
                     className="flex items-center px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
                   >
-                    <FaUser className="mr-2 text-gray-600" /> My Profile
+                    <FaUser className="mr-2 text-gray-600" /> Cá Nhân
                   </Link>
                   <Link
                     to="/schedule"
@@ -115,7 +115,7 @@ const Header = () => {
                     }}
                     className="flex items-center w-full text-left px-4 py-2 text-gray-800 hover:bg-blue-50 hover:text-blue-600 text-sm transition-colors duration-200"
                   >
-                    <FaSignOutAlt className="mr-2 text-gray-600" /> Logout
+                    <FaSignOutAlt className="mr-2 text-gray-600" /> Đăng Xuất
                   </button>
                 </div>
               </div>
