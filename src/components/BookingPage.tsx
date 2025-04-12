@@ -340,8 +340,8 @@ const BookingPage = () => {
 
   // Check recharge transaction status
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    let timeout: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
+    let timeout: ReturnType<typeof setTimeout>;
 
     if (rechargeQrUrl && rechargeDes && rechargeAmount) {
       interval = setInterval(async () => {
@@ -352,7 +352,7 @@ const BookingPage = () => {
               des: rechargeDes,
             },
           });
-          if (response.data.code === 1000 && response.data.result === true) {
+          if (response.data.code === 1000 && response.data.result === "true") {
             setSuccess('Nạp tiền thành công! Vui lòng kiểm tra lại số dư.');
             setRechargeQrUrl(null);
             setRechargeDes(null);
@@ -401,8 +401,8 @@ const BookingPage = () => {
 
   // Check transaction status for QR code
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    let timeout: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
+    let timeout: ReturnType<typeof setTimeout>;
 
     if (qrCodeUrl && bookingId && totalPrice && transactionDes) {
       interval = setInterval(async () => {

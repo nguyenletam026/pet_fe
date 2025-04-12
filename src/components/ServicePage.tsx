@@ -63,13 +63,12 @@ interface DirectionsResponse {
 
 const ServicePage = () => {
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
-  const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>('');
-  const [shops, setShops] = useState<Shop[]>([]);
   const [filteredShops, setFilteredShops] = useState<Shop[]>([]);
+  const [selectedServiceType, setSelectedServiceType] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locationError, setLocationError] = useState('');
+  const [error, setError] = useState("");
+  const [userLat, setUserLat] = useState<number | null>(null);
+  const [userLng, setUserLng] = useState<number | null>(null);
 
   const token = localStorage.getItem('token');
   const axiosInstance = axios.create({
@@ -85,18 +84,15 @@ const ServicePage = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
+          setUserLat(position.coords.latitude);
+          setUserLng(position.coords.longitude);
         },
         (err) => {
-          setLocationError('Không thể lấy vị trí của bạn. Vui lòng cho phép truy cập vị trí.');
           console.error('Geolocation error:', err);
         }
       );
     } else {
-      setLocationError('Trình duyệt của bạn không hỗ trợ định vị địa lý.');
+      console.error('Trình duyệt của bạn không hỗ trợ định vị địa lý.');
     }
   }, []);
 
@@ -120,19 +116,18 @@ const ServicePage = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedServiceTypeId) {
+    if (selectedServiceType) {
       const fetchShopsAndDistances = async () => {
         setLoading(true);
         try {
           const response = await axiosInstance.get('/shops/getAllShops');
           let shopsData: Shop[] = response.data.result || [];
-          setShops(shopsData);
 
           const filtered = shopsData.filter((shop: Shop) =>
-            shop.services.some((service: Service) => service.serviceTypeId === selectedServiceTypeId)
+            shop.services.some((service: Service) => service.serviceTypeId === selectedServiceType)
           );
 
-          if (userLocation && filtered.length > 0) {
+          if (userLat && userLng && filtered.length > 0) {
             const shopsWithDistances = await Promise.all(
               filtered.map(async (shop: Shop) => {
                 try {
@@ -144,7 +139,7 @@ const ServicePage = () => {
                     const shopLocation = geocodeResponse.data.results[0].geometry.location;
 
                     const directionsResponse = await axios.get<DirectionsResponse>(
-                      `https://rsapi.goong.io/Direction?origin=${userLocation.lat},${userLocation.lng}&destination=${shopLocation.lat},${shopLocation.lng}&vehicle=bike&api_key=Vdl76qC064CJ5q05tJfCqrSW51c8FWnh5uGIAPVa`
+                      `https://rsapi.goong.io/Direction?origin=${userLat},${userLng}&destination=${shopLocation.lat},${shopLocation.lng}&vehicle=bike&api_key=Vdl76qC064CJ5q05tJfCqrSW51c8FWnh5uGIAPVa`
                     );
 
                     if (directionsResponse.data.routes.length > 0) {
@@ -177,7 +172,7 @@ const ServicePage = () => {
     } else {
       setFilteredShops([]);
     }
-  }, [selectedServiceTypeId, userLocation]);
+  }, [selectedServiceType, userLat, userLng]);
 
   const formatDistance = (distance: number | undefined) => {
     if (distance === undefined || distance === Infinity) {
@@ -212,9 +207,9 @@ const ServicePage = () => {
                 <div
                   key={type.id}
                   className={`group flex flex-col items-center cursor-pointer p-4 rounded-2xl transition-all duration-500 transform hover:scale-110 hover:shadow-xl bg-white shadow-md border border-yellow-200 ${
-                    selectedServiceTypeId === type.id ? 'bg-amber-50 scale-110 shadow-xl border-amber-500' : ''
+                    selectedServiceType === type.id ? 'bg-amber-50 scale-110 shadow-xl border-amber-500' : ''
                   } animate-fadeIn`}
-                  onClick={() => setSelectedServiceTypeId(type.id)}
+                  onClick={() => setSelectedServiceType(type.id)}
                 >
                   <img
                     src={type.avtUrl || 'https://via.placeholder.com/80'}
@@ -228,23 +223,23 @@ const ServicePage = () => {
           </div>
 
           {/* Display Selected Service Type Info */}
-          {selectedServiceTypeId && (
+          {selectedServiceType && (
             <div className="bg-white p-8 rounded-2xl shadow-lg mb-16 mx-auto max-w-2xl border border-yellow-200 animate-fadeIn">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                {serviceTypes.find((type) => type.id === selectedServiceTypeId)?.name}
+                {serviceTypes.find((type) => type.id === selectedServiceType)?.name}
               </h3>
               <div className="space-y-4 text-gray-700">
                 <p className="flex items-center gap-3">
                   <FaDollarSign className="text-amber-600" />{' '}
-                  {serviceTypes.find((type) => type.id === selectedServiceTypeId)?.price.toLocaleString()} VND
+                  {serviceTypes.find((type) => type.id === selectedServiceType)?.price.toLocaleString()} VND
                 </p>
                 <p className="flex items-center gap-3">
                   <FaClock className="text-amber-600" />{' '}
-                  {serviceTypes.find((type) => type.id === selectedServiceTypeId)?.duration} phút
+                  {serviceTypes.find((type) => type.id === selectedServiceType)?.duration} phút
                 </p>
                 <p className="text-gray-600">
                   <span className="font-medium">Mô tả:</span>{' '}
-                  {serviceTypes.find((type) => type.id === selectedServiceTypeId)?.description}
+                  {serviceTypes.find((type) => type.id === selectedServiceType)?.description}
                 </p>
               </div>
             </div>
@@ -256,7 +251,6 @@ const ServicePage = () => {
               Danh Sách Shop
             </h3>
             {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-            {locationError && <p className="text-amber-600 text-center mb-4">{locationError}</p>}
             {loading && (
               <div className="flex justify-center items-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-amber-600 border-opacity-75"></div>
@@ -306,7 +300,7 @@ const ServicePage = () => {
                         {shop.services.length > 0 ? (
                           <ul className="space-y-2">
                             {shop.services
-                              .filter((service) => service.serviceTypeId === selectedServiceTypeId)
+                              .filter((service) => service.serviceTypeId === selectedServiceType)
                               .map((service) => (
                                 <li key={service.id} className="text-gray-600 flex items-center gap-2">
                                   <FaPaw className="text-amber-600" /> {service.name} -{' '}
@@ -321,9 +315,9 @@ const ServicePage = () => {
                       <Link
                         to="/booking"
                         state={{
-                          serviceTypeId: selectedServiceTypeId,
+                          serviceTypeId: selectedServiceType,
                           shopId: shop.id,
-                          serviceType: serviceTypes.find((type) => type.id === selectedServiceTypeId),
+                          serviceType: serviceTypes.find((type) => type.id === selectedServiceType),
                           shop: shop,
                         }}
                         className="w-full bg-gradient-to-r from-amber-500 to-amber-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 hover:from-amber-600 hover:to-amber-800 transition-all duration-300 shadow-md"
@@ -334,7 +328,7 @@ const ServicePage = () => {
                   </div>
                 ))}
               </div>
-            ) : selectedServiceTypeId ? (
+            ) : selectedServiceType ? (
               <p className="text-gray-500 text-center">
                 Không có shop nào cung cấp dịch vụ này.
               </p>
@@ -360,7 +354,7 @@ const ServicePage = () => {
       </footer>
 
       {/* Custom CSS for Animations and Glow Effect */}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

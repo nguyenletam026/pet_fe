@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../../Base_Api";
 import { useLocation, Link } from "react-router-dom";
@@ -6,6 +6,7 @@ import Header from "./Header";
 import { motion } from "framer-motion";
 import { ShoppingCartOutlined, HeartOutlined, HeartFilled, StarFilled } from "@ant-design/icons";
 import { publicAxios } from '../../src/untils/axiosConfig';
+
 interface Product {
   id: number;
   name: string;

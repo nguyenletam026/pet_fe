@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  base: '/pet_fe/', // Thêm dòng này, đảm bảo tên giống với tên repository
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

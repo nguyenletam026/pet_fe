@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaEnvelope, FaMapMarkerAlt, FaCalendar, FaUserShield, FaPaw, FaPlus, FaTimes, FaDog, FaCat, FaWeight, FaPaw as FaAge, FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
+import { FaEnvelope, FaMapMarkerAlt, FaCalendar, FaUserShield, FaPaw, FaPlus, FaTimes, FaDog, FaCat, FaWeight, FaPaw as FaAge, FaEdit, FaTrash, FaInfoCircle, FaShoppingCart } from "react-icons/fa";
 import Header from "./Header";
 import { API_URL } from '../../Base_Api';
 import { Link } from 'react-router-dom';
-import { FaSearch, FaHeart, FaShoppingCart, FaPhone, FaUser, FaSignOutAlt } from 'react-icons/fa';
 
 interface Pet {
   id: string;
@@ -169,7 +168,7 @@ const Profile = () => {
     }
   };
 
-  const handleEditPet = (pet: any) => {
+  const handleEditPet = () => {
     alert("Chức năng chỉnh sửa đang được phát triển!");
   };
 
@@ -397,7 +396,7 @@ const Profile = () => {
                             {/* Actions */}
                             <div className="p-4 flex justify-between border-t border-gray-200 bg-gray-50">
                               <button
-                                onClick={() => handleEditPet(pet)}
+                                onClick={handleEditPet}
                                 className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
                               >
                                 <FaEdit /> Chỉnh sửa

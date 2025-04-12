@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../Base_Api';
-import { FaSearch, FaHeart, FaShoppingCart, FaPhone, FaUser, FaSignOutAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaSearch, FaHeart, FaShoppingCart, FaUser, FaSignOutAlt, FaCalendarAlt } from 'react-icons/fa';
 
 interface UserData {
   id: string;
@@ -12,15 +12,22 @@ interface UserData {
   avtUrl?: string;
 }
 
-const Header = () => {
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const token = localStorage.getItem('token');
+interface HeaderProps {
+  userData?: UserData | null;
+  token?: string | null;
+}
+
+const Header = ({ userData: propUserData, token: propToken }: HeaderProps = {}) => {
+  const [userData, setUserData] = useState<UserData | null>(propUserData || null);
+  const token = propToken || localStorage.getItem('token');
 
   useEffect(() => {
-    if (token) {
+    if (propUserData) {
+      setUserData(propUserData);
+    } else if (token && !userData) {
       fetchUserData();
     }
-  }, [token]);
+  }, [token, propUserData]);
 
   const fetchUserData = async () => {
     try {

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../../Base_Api";
 import { 
   Card, Typography, List, Image, Spin, Empty, Collapse, Badge, 
-  Divider, Tag, Row, Col, Alert 
+  Divider, Alert 
 } from "antd";
 import { 
   ShoppingOutlined, HistoryOutlined, ClockCircleOutlined,
@@ -11,7 +11,6 @@ import {
 } from "@ant-design/icons";
 import Header from "./Header";
 import { format } from "date-fns";
-import { div } from "framer-motion/client";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -32,7 +31,7 @@ interface Order {
   orderItems: OrderItem[];
 }
 
-const OrderHistoryPage: React.FC = () => {
+const OrderHistoryPage = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

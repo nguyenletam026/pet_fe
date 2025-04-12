@@ -3,7 +3,6 @@ import axios from 'axios';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-import loginImage from '../assets/attachment_102284279.jpg';
 import { API_URL } from '../../Base_Api';
 // Custom JWT payload interface
 interface CustomJwtPayload {

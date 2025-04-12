@@ -285,7 +285,7 @@ const AdminPage = () => {
         formData.append('image', productFile);
       }
 
-      const response = await axiosInstance.post('/products', formData, {
+      await axiosInstance.post('/products', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
@@ -800,7 +800,7 @@ const AdminPage = () => {
       )}
 
       {/* CSS for Modal */}
-      <style jsx>{`
+      <style>{`
         .modal {
           position: fixed;
           top: 50%;

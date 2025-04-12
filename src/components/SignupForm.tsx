@@ -2,8 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 import { FaUser, FaEnvelope, FaLock, FaMapMarkerAlt, FaUpload, FaPhone } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import loginImage from "../assets/attachment_102284279.jpg";
 import { API_URL } from '../../Base_Api';
+
 const SignupForm = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,8 +16,6 @@ const SignupForm = () => {
   const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [lat, setLat] = useState<number | null>(null);
-  const [lon, setLon] = useState<number | null>(null);
   const navigate = useNavigate();
 
   // Xử lý khi chọn ảnh
@@ -70,8 +68,6 @@ const SignupForm = () => {
       async (position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
-        setLat(latitude);
-        setLon(longitude);
   
         try {
           const response = await axios.get(

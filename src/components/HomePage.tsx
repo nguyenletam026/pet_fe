@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { API_URL } from "../../Base_Api";
 import { Link } from "react-router-dom";
 import Header from "./Header";
 import { gsap } from "gsap";
 import image from "../assets/image.png";
-import hinhanh from "../assets/image.png";
 
 interface Service {
   id: string;
@@ -37,7 +36,6 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [userLoading, setUserLoading] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideRef = useRef<HTMLDivElement>(null); // Changed to div ref for the image container
 
@@ -95,12 +93,11 @@ const HomePage = () => {
   };
 
   const fetchUserData = async () => {
-    setUserLoading(true);
     try {
       const response = await axiosInstance.get("/users/myInfo");
       setUserData(response.data.result);
-    } finally {
-      setUserLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch user data:", err);
     }
   };
 
@@ -166,25 +163,24 @@ const HomePage = () => {
         </div>
 
         {/* Text and buttons container (fixed on the left) */}
-        {/* Text and buttons container (fixed on the left) */}
-<div className="relative container mx-auto px-4 flex items-center justify-start h-full text-left max-w-7xl">
-  <div className="w-full md:w-1/2   p-8 rounded-xl">
-    <h1 className="text-4xl md:text-5xl font-bold text-amber-200 mb-4 transition-all duration-500 drop-shadow-lg">
-      {slides[currentSlide].title}
-    </h1>
-    <p className="text-stone-100 text-lg mb-6 transition-all duration-500 drop-shadow-md">
-      {slides[currentSlide].subtitle}
-    </p>
-    <Link
-      to="/services"
-      className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 
-      transition-all duration-300 inline-block shadow-lg hover:shadow-xl 
-      hover:-translate-y-0.5 font-medium"
-    >
-      Đặt Lịch Ngay !!!
-    </Link>
-  </div>
-</div>
+        <div className="relative container mx-auto px-4 flex items-center justify-start h-full text-left max-w-7xl">
+          <div className="w-full md:w-1/2   p-8 rounded-xl">
+            <h1 className="text-4xl md:text-5xl font-bold text-amber-200 mb-4 transition-all duration-500 drop-shadow-lg">
+              {slides[currentSlide].title}
+            </h1>
+            <p className="text-stone-100 text-lg mb-6 transition-all duration-500 drop-shadow-md">
+              {slides[currentSlide].subtitle}
+            </p>
+            <Link
+              to="/services"
+              className="bg-orange-500 text-white px-8 py-3 rounded-full hover:bg-orange-600 
+              transition-all duration-300 inline-block shadow-lg hover:shadow-xl 
+              hover:-translate-y-0.5 font-medium"
+            >
+              Đặt Lịch Ngay !!!
+            </Link>
+          </div>
+        </div>
 
         {/* Navigation Arrows */}
         <button
@@ -258,74 +254,74 @@ const HomePage = () => {
 
       {/* CTA Sections */}
       <div className="container mx-auto px-4 py-12">
-  <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Danh Mục <span className="text-blue-500">Sản Phẩm</span></h2>
-  
-  <div className="grid md:grid-cols-2 gap-8">
-    {/* Pet Food Card */}
-    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
-      <div className="relative h-64 overflow-hidden">
-        <img 
-          src="https://nativespeaker.vn/uploaded/page_1600_1712215630_1713753920.jpg?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-          alt="Pet Food" 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-      <div className="bg-orange-500 p-6">
-        <h3 className="text-2xl font-bold text-white mb-2">Đồ Ăn Cho Thú Cưng</h3>
-        <p className="text-white text-sm mb-4">
-          Các sản phẩm dinh dưỡng chất lượng cao, đảm bảo sức khỏe tối ưu cho thú cưng của bạn
-        </p>
-        <Link
-          to="/products?type=FOOD"
-          className="inline-flex items-center bg-white text-orange-600 px-6 py-2 rounded-full font-medium hover:bg-orange-50 transition-colors"
-        >
-          Mua Ngay
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </Link>
-      </div>
-    </div>
+        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Danh Mục <span className="text-blue-500">Sản Phẩm</span></h2>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Pet Food Card */}
+          <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
+            <div className="relative h-64 overflow-hidden">
+              <img 
+                src="https://nativespeaker.vn/uploaded/page_1600_1712215630_1713753920.jpg?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                alt="Pet Food" 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+            <div className="bg-orange-500 p-6">
+              <h3 className="text-2xl font-bold text-white mb-2">Đồ Ăn Cho Thú Cưng</h3>
+              <p className="text-white text-sm mb-4">
+                Các sản phẩm dinh dưỡng chất lượng cao, đảm bảo sức khỏe tối ưu cho thú cưng của bạn
+              </p>
+              <Link
+                to="/products?type=FOOD"
+                className="inline-flex items-center bg-white text-orange-600 px-6 py-2 rounded-full font-medium hover:bg-orange-50 transition-colors"
+              >
+                Mua Ngay
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+          </div>
 
-    {/* Pet Accessories Card */}
-    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
-      <div className="relative h-64 overflow-hidden">
-        <img 
-          src="https://images.unsplash.com/photo-1560743641-3914f2c45636?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-          alt="Pet Accessories" 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-      <div className="bg-pink-500 p-6">
-        <h3 className="text-2xl font-bold text-white mb-2">Phụ Kiện Cho Thú Cưng</h3>
-        <p className="text-white text-sm mb-4">
-          Đa dạng phụ kiện thời trang, tiện ích giúp thú cưng của bạn luôn thoải mái và đáng yêu
-        </p>
-        <Link
-          to="/products?type=ACCESSORY"
-          className="inline-flex items-center bg-white text-pink-600 px-6 py-2 rounded-full font-medium hover:bg-pink-50 transition-colors"
-        >
-          Mua Ngay
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </Link>
-      </div>
-    </div>
-  </div>
+          {/* Pet Accessories Card */}
+          <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
+            <div className="relative h-64 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1560743641-3914f2c45636?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                alt="Pet Accessories" 
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
+            <div className="bg-pink-500 p-6">
+              <h3 className="text-2xl font-bold text-white mb-2">Phụ Kiện Cho Thú Cưng</h3>
+              <p className="text-white text-sm mb-4">
+                Đa dạng phụ kiện thời trang, tiện ích giúp thú cưng của bạn luôn thoải mái và đáng yêu
+              </p>
+              <Link
+                to="/products?type=ACCESSORY"
+                className="inline-flex items-center bg-white text-pink-600 px-6 py-2 rounded-full font-medium hover:bg-pink-50 transition-colors"
+              >
+                Mua Ngay
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
 
-  <div className="mt-12 text-center">
-    <Link 
-      to="/products" 
-      className="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-3 rounded-lg transition-colors"
-    >
-      Xem Tất Cả Sản Phẩm
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-      </svg>
-    </Link>
-  </div>
-</div>
+        <div className="mt-12 text-center">
+          <Link 
+            to="/products" 
+            className="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white font-medium px-8 py-3 rounded-lg transition-colors"
+          >
+            Xem Tất Cả Sản Phẩm
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          </Link>
+        </div>
+      </div>
 
       {/* Shops List */}
       <div className="container mx-auto px-4 py-16">
@@ -382,7 +378,7 @@ const HomePage = () => {
       </footer>
 
       {/* Inline CSS for Flip Animation */}
-      <style jsx>{`
+      <style>{`
         @keyframes flipOut {
           0% {
             opacity: 1;
