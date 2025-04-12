@@ -1,1 +1,1 @@
-export const API_URL = ' https://d6f5-2402-800-63e9-6618-409e-f66d-f2c0-d032.ngrok-free.app';
+export const API_URL = 'https://pet-be-r1i7.onrender.com';
