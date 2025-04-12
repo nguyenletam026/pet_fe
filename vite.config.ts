@@ -3,6 +3,16 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // Đảm bảo file index.html được sử dụng cho tất cả các routes
+    rollupOptions: {
+      input: {
+        main: 'index.html'
+      }
+    }
+  },
   server: {
     host: true,  // Cho phép truy cập từ các host bên ngoài
     strictPort: false,
