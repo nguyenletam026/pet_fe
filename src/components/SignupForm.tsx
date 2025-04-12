@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { FaUser, FaEnvelope, FaLock, FaMapMarkerAlt, FaUpload, FaPhone } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { API_URL } from '../../Base_Api';
 
 const SignupForm = () => {
@@ -292,11 +292,12 @@ const SignupForm = () => {
             </button>
           </form>
 
+          {/* Login Link */}
           <p className="text-center text-gray-500 mt-4">
-            Đã có tài khoản?{" "}
-            <a href="/" className="text-yellow-600 hover:underline">
-              Đăng nhập ngay!
-            </a>
+            Đã có tài khoản?{' '}
+            <Link to="/" className="text-yellow-600 hover:underline">
+              Đăng nhập ngay
+            </Link>
           </p>
 
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}

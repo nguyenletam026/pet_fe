@@ -10,7 +10,7 @@ import {
   QrcodeOutlined, WalletOutlined, CheckCircleOutlined, MinusCircleOutlined,
   PlusCircleOutlined, EditOutlined, HistoryOutlined
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Header from "./Header";
 
 interface CartItem {
@@ -96,6 +96,7 @@ const CartPage: React.FC = () => {
   const [orderId, setOrderId] = useState<number | null>(null); // State to store orderId from createOrder
   const [editingItem, setEditingItem] = useState<number | null>(null); // Track which item is being edited
   const [editQuantity, setEditQuantity] = useState<number>(1);
+  const navigate = useNavigate();
 
   const { Title, Text } = Typography;
 
@@ -412,7 +413,7 @@ const CartPage: React.FC = () => {
               <Button 
                 type="primary" 
                 size="large"
-                onClick={() => (window.location.href = "/home")}
+                onClick={() => navigate("/home")}
                 style={{ padding: "0 40px", height: "48px", fontSize: "16px" }}
               >
                 Tiếp tục Mua Sắm
@@ -470,7 +471,7 @@ const CartPage: React.FC = () => {
               <p style={{ marginTop: "20px", fontSize: "16px" }}>Giỏ hàng của bạn đang trống</p>
               <Button 
                 type="primary" 
-                href="/products?type=FOOD" 
+                onClick={() => navigate('/products?type=FOOD')}
                 size="large"
                 style={{ marginTop: "20px", padding: "0 30px", height: "40px" }}
               >

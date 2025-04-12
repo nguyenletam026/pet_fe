@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { API_URL } from '../../Base_Api';
 // Custom JWT payload interface
 interface CustomJwtPayload {
@@ -125,9 +125,9 @@ const LoginForm = () => {
           {/* Signup Link */}
           <p className="text-center text-gray-500 mt-4">
             Chưa có tài khoản?{' '}
-            <a href="/signup" className="text-yellow-600 hover:underline">
+            <Link to="/signup" className="text-yellow-600 hover:underline">
               Đăng ký ngay 🐾
-            </a>
+            </Link>
           </p>
 
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}

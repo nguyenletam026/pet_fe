@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../Base_Api';
 import Modal from 'react-modal';
+import { useNavigate } from 'react-router-dom';
 
 // Service type interface
 interface ServiceType {
@@ -54,6 +55,7 @@ interface ProductCreateRequest {
 }
 
 const AdminPage = () => {
+  const navigate = useNavigate();
   // User states
   const [users, setUsers] = useState<UserResponse[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
@@ -326,7 +328,7 @@ const AdminPage = () => {
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>
           <button className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg" onClick={() => {
               localStorage.removeItem('token');
-              window.location.href = '/';
+              navigate('/');
             }}>
             Logout
           </button>

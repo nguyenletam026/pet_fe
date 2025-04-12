@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../../Base_Api';
+import { useNavigate } from 'react-router-dom';
 
 interface Service {
   id: string;
@@ -91,6 +92,7 @@ const OwnerPage = () => {
   const [loading, setLoading] = useState(false);
   const [shopNotExisted, setShopNotExisted] = useState(false);
   const [activeTab, setActiveTab] = useState<'shop' | 'services' | 'bookings'>('shop');
+  const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
   const axiosInstance = axios.create({
@@ -293,7 +295,7 @@ const OwnerPage = () => {
             className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg"
             onClick={() => {
               localStorage.removeItem('token');
-              window.location.href = '/';
+              navigate('/');
             }}
           >
             Logout
