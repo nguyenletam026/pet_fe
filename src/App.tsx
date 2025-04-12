@@ -13,7 +13,7 @@ import CartPage from './components/Cart';
 import OrderHistoryPage from './components/OrderHistoryPage';
 const App = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/pet_fe">
       <Routes>
         <Route path="/cart" element={<CartPage />} />
         <Route path="/" element={<LoginForm />} />
