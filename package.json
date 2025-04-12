@@ -6,6 +6,7 @@
   "homepage": "https://nguyenletam026.github.io/pet_fe/",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "tsc -b && vite build",
     "vercel-build": "tsc && vite build",
     "predeploy": "npm run build",
